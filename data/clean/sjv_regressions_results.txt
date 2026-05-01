@@ -1,0 +1,27 @@
+SJV county regressions (OLS with HC1 robust SE)
+
+Note: only 8 counties; treat inference cautiously.
+
+Model m1_pre_harm: well_pre ~ gwe_pre (n=8, R2=0.058)
+  Intercept: coef=28.49, se(HC1)=12.12, t=2.35
+  gwe_pre: coef=-0.04821, se(HC1)=0.0461, t=-1.05
+
+Model m2_income_wells_2021: well_total ~ inc_post (n=8, R2=0.150)
+  Intercept: coef=3140, se(HC1)=2580, t=1.22
+  inc_post: coef=-0.04082, se(HC1)=0.03768, t=-1.08
+
+Model m3_small_loss_gw_change: small_loss ~ gwe_delta (n=8, R2=0.020)
+  Intercept: coef=626, se(HC1)=211.5, t=2.96
+  gwe_delta: coef=-0.1389, se(HC1)=0.1896, t=-0.733
+
+Model m4_pre_income_pre_wells: well_pre ~ inc_pre (n=8, R2=0.016)
+  Intercept: coef=61.15, se(HC1)=79.28, t=0.771
+  inc_pre: coef=-0.0008185, se(HC1)=0.001628, t=-0.503
+
+Model m5_fallow_change_gw_change: fallow_delta ~ gwe_delta (n=8, R2=0.951)
+  Intercept: coef=-1.3e+04, se(HC1)=8929, t=-1.46
+  gwe_delta: coef=-173.6, se(HC1)=7.578, t=-22.9
+
+Model m6_small_loss_fallow_change: small_loss ~ fallow_delta (n=8, R2=0.045)
+  Intercept: coef=653.9, se(HC1)=219.9, t=2.97
+  fallow_delta: coef=0.001162, se(HC1)=0.001299, t=0.895

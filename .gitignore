@@ -1,0 +1,32 @@
+# Secrets / local env
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Node
+node_modules/
+.vercel
+
+# Cursor / OS
+.cursor/
+.DS_Store
+Thumbs.db
+
+# Huge raw data (regenerate locally; GitHub file limit)
+/measurements.csv
+data/raw/groundwater/measurements.csv
+
+# Large downloaded caches (rebuilt by scripts)
+data/clean/_cache_external/
+data/clean/_cache_cb_*.zip
+_cache_sjv_gsp/
+
+# Optional: uncomment if well-failure CSV is too large for GitHub
+# householdwatersupply*.csv

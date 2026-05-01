@@ -1,0 +1,8 @@
+{
+  "name": "sjv-equity-atlas",
+  "private": true,
+  "description": "Vercel static deploy for SGMA SJV Equity Atlas",
+  "scripts": {
+    "build": "node scripts/copy-atlas.cjs"
+  }
+}

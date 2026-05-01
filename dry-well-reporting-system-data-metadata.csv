@@ -1,0 +1,69 @@
+Field,Value
+Title,Dry Well Reporting System Data
+URL,dry-well-reporting-system-data
+Description,"In California, water systems serving one (1) to 15 households are regulated at the county level. Counties vary in their practices, but rarely do counties collect data regularly from these systems. Even where data is collected, it is entirely voluntary. A review of well permit information suggests there are over 1 million such water systems in California.
+
+In early 2014, a cross-agency Work Group created an easily accessible reporting system to get more systematic data on which parts of the state had households at risk of water supply shortages. The initial motivation for local water supply systems to report shortage information was to obtain statewide drought assistance. The reporting system receives ongoing reports of shortages from local, state, federal and non-governmental organizations, and tracks their status to resolution. While several counties have developed their own tracking mechanisms, this data is manually entered into the reporting system.  
+
+The cross-agency team, led by DWR, seeks to verify and update the data submitted. However, due to the volunteer nature of the reporting and limitations on reporting agencies, collected data are undoubtedly under-representative of all shortages to have occurred. In addition, reports are received from multiple sources and there are occasionally errors and omissions that can create duplicate entries, non-household water supply reporting, and under-reporting. For example, missing information or no data for a given county does not necessarily mean that there are no household water shortages in the county, rather only that none have been reported to the State."
+Tags,"Dry Wells,Water Supply Shortage"
+Organization,California Department of Water Resources
+Publisher,
+Program,
+Homepage URL,https://mydrywell.water.ca.gov/report/
+Contact Name,Ben Brezing
+Contact Email,benjamin.brezing@water.ca.gov
+Frequency,
+License,notspecified
+Public Access Level,Public
+Limitations,
+Language,
+Temporal Coverage,
+Indicate Spatial Coverage,
+Spatial Coverage,
+Place Keywords,
+Bounding Coordinate,"{""westBoundingCoordinate"": """", ""southBoundingCoordinate"": """", ""northBoundingCoordinate"": """", ""eastBoundingCoordinate"": """"}"
+Purpose,
+Identification Information Citation,"{""originator"": ["""", """", """"], ""title"": """", ""onlineLinkage"": ["""", """"], ""edition"": """", ""geospatialDataPresentationForm"": """", ""publicationDate"": """"}"
+Credit,
+Progress,
+Maintenance and Update Frequency,
+Lineage Citation,"{""originator"": ["""", """", """"], ""title"": """", ""geospatialDataPresentationForm"": """", ""publicationDate"": """"}"
+Source Scale Denominator,
+Type of Source Media,
+Source Currentness Reference,
+Source Citation Abbreviation,
+Completeness Report,
+Attribute Accuracy Report,
+Use Constraints,
+Point of Contact,"{""contactOrganization"": """", ""contactPosition"": """", ""telephone"": ["""", """"], ""contactPerson"": """", ""email"": ["""", """"]}"
+Point of Contact Address,"[{""city"": """", ""addressType"": """", ""country"": """", ""state"": """", ""address"": """", ""postalCode"": """"}]"
+Metadata Contact,"{""contactOrganization"": """", ""contactPosition"": """", ""telephone"": ["""", """"], ""contactPerson"": """", ""email"": ["""", """"]}"
+Metadata Contact Address,"[{""city"": """", ""addressType"": """", ""country"": """", ""state"": """", ""address"": """", ""postalCode"": """"}]"
+Distributor Contact,"{""email"": ["""", """"], ""contactOrganization"": """", ""telephone"": ["""", """"], ""contactPerson"": """", ""contactPosition"": """"}"
+Distributor Contact Address,"[{""city"": """", ""addressType"": """", ""country"": """", ""state"": """", ""address"": """", ""postalCode"": """"}]"
+Distribution Liability,
+Time Period of Content,"[{""date"": """", ""time"": """"}]"
+Beginning Time Period of Content,"{""date"": """", ""time"": """"}"
+Ending Time Period of Content,"{""date"": """", ""time"": """"}"
+Temporal Keywords,
+Currentness Reference,
+Native Dataset Environment,
+Description of Geographic Extent,
+Map Projection Name,
+Horizontal Datum Name,
+Stratum Keywords,
+Bounding Altitudes,"{""altitudeDistanceUnits"": """", ""altitudeMaximum"": """", ""altitudeMinimum"": """"}"
+Planar Coordinate Information,"{""planarCoordinateEncodingMethod"": """", ""ordinateResolution"": """", ""planarDistanceUnits"": """", ""abscissaResolution"": """"}"
+Taxonomic Keywords,
+Taxonomic System Citation,"{""originator"": ["""", """", """"]}"
+Identifier Contact,"{""email"": ["""", """"], ""contactOrganization"": """", ""telephone"": ["""", """"], ""contactPerson"": """", ""contactPosition"": """"}"
+Identifier Contact Address,"[{""city"": """", ""addressType"": """", ""country"": """", ""state"": """", ""address"": """", ""postalCode"": """"}]"
+Taxonomic System Identification Reference Citation,"{""originator"": ["""", """", """"]}"
+Vouchers Specimen,
+Vouchers Contact,"{""contactOrganization"": """", ""contactPosition"": """", ""email"": ["""", """"], ""contactPerson"": """", ""telephone"": ["""", """"]}"
+Vouchers Contact Address,"[{""city"": """", ""addressType"": """", ""country"": """", ""state"": """", ""address"": """", ""postalCode"": """"}]"
+Geologic Age,"[{""geologicAgeEstimate"": """", ""geologicAgeExplanation"": """", ""geologicAgeUncertainty"": """", ""geologicTimeScale"": """"}]"
+Beginning Geologic Age,"[{""geologicAgeEstimate"": """", ""geologicAgeExplanation"": """", ""geologicAgeUncertainty"": """", ""geologicTimeScale"": """"}]"
+Ending Geologic Age,"[{""geologicAgeEstimate"": """", ""geologicTimeScale"": """", ""geologicAgeUncertainty"": """", ""geologicAgeExplanation"": """"}]"
+Geologic Citation,"{""originator"": ["""", """", """"], ""title"": """", ""onlineLinkage"": ["""", """"], ""sername"": """", ""geospatialDataPresentationForm"": """", ""issue"": """", ""publicationDate"": """"}"
