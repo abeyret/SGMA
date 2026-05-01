@@ -2,6 +2,25 @@
 
 This repo includes a tiny **static** deploy: `npm run build` copies `data/clean/sjv_equity_atlas.html` → `vercel_site/index.html`.
 
+## Push to GitHub (first time)
+
+Git is initialized on your machine with an initial commit. GitHub CLI is installed, but **you must sign in once** (browser / device code).
+
+From the project folder in PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\push-github.ps1
+```
+
+Or manually:
+
+```powershell
+& "C:\Program Files\GitHub CLI\gh.exe" auth login -h github.com -p https -w
+& "C:\Program Files\GitHub CLI\gh.exe" repo create SGMA-ECON30 --public --source . --remote origin --push
+```
+
+If the name `SGMA-ECON30` is already taken on your account, change it in `scripts/push-github.ps1` or pass a different name to `repo create`.
+
 ## Before you connect Vercel
 
 1. Regenerate the atlas locally (optional if the file is already current):
