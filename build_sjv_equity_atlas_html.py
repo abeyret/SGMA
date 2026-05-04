@@ -1248,6 +1248,69 @@ def render_html(payload: dict) -> str:
     * {{ box-sizing:border-box; }}
     /* Warm theme: light beige + dark brown */
     html,body {{ margin:0; height:100%; background:#f6f0e6; color:#2a1a12; font-family: system-ui, Segoe UI, Roboto, sans-serif; }}
+    a {{ color: inherit; }}
+    .btn {{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      border:1px solid rgba(42,26,18,0.22);
+      background:#6b3f2a; color:#fff; padding:12px 14px; border-radius:14px;
+      font-weight:800; font-size:0.92rem; cursor:pointer; text-decoration:none;
+      box-shadow: 0 10px 24px rgba(42,26,18,0.14);
+    }}
+    .btn.secondary {{
+      background:rgba(255,255,255,0.65); color:#2a1a12;
+    }}
+
+    /* Intro story */
+    .intro {{
+      min-height: 100vh;
+      display:flex; flex-direction:column;
+      padding: 24px 16px;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(107,63,42,0.14), transparent 55%),
+        radial-gradient(900px 500px at 85% 20%, rgba(42,26,18,0.10), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.00));
+    }}
+    .intro .wrap {{ max-width: 980px; width:100%; margin: 0 auto; }}
+    .snap {{
+      height: calc(100vh - 48px);
+      display:flex; align-items:center;
+    }}
+    .snap .card {{
+      width:100%;
+      border:1px solid rgba(42,26,18,0.14);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.74);
+      box-shadow: 0 16px 40px rgba(42,26,18,0.12);
+      padding: 22px 20px;
+    }}
+    .intro h1 {{ margin:0; font-size:2.0rem; letter-spacing:-0.02em; line-height:1.05; }}
+    .intro p {{ margin:10px 0 0 0; font-size:1.06rem; color:rgba(42,26,18,0.82); line-height:1.35; }}
+    .kicker {{
+      display:inline-flex; align-items:center; gap:10px;
+      font-weight:900; font-size:0.82rem; letter-spacing:0.08em; text-transform:uppercase;
+      color: rgba(42,26,18,0.75);
+      margin-bottom: 12px;
+    }}
+    .scrollHint {{ margin-top: 14px; font-size:0.9rem; color:rgba(42,26,18,0.70); }}
+    .introGrid {{
+      display:grid; grid-template-columns: 1fr; gap: 12px; margin-top: 14px;
+    }}
+    .mini {{
+      border:1px solid rgba(42,26,18,0.10);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.62);
+      padding: 12px 12px;
+      color: rgba(42,26,18,0.80);
+      font-size: 0.98rem;
+      line-height: 1.25;
+    }}
+    .muted {{ color: rgba(42,26,18,0.70); }}
+    .introActions {{ display:flex; flex-wrap:wrap; gap:10px; margin-top: 14px; }}
+    .divider {{
+      height: 1px; background: rgba(42,26,18,0.10);
+      margin: 14px 0;
+    }}
+
     .app {{ height:100%; display:flex; flex-direction:column; }}
     .top {{
       padding:14px 16px; border-bottom:1px solid rgba(42,26,18,0.12);
@@ -1299,11 +1362,61 @@ def render_html(payload: dict) -> str:
   </style>
 </head>
 <body>
-<div class="app">
+
+<div class="intro" id="top">
+  <div class="wrap">
+    <section class="snap">
+      <div class="card">
+        <div class="kicker">San Joaquin Valley • Subsidence</div>
+        <h1>The San Joaquin Central Valley is sinking at record-breaking rates.</h1>
+        <p class="muted">Scroll to see the stakes, then explore what changed after SGMA.</p>
+        <div class="scrollHint">Scroll ↓</div>
+      </div>
+    </section>
+
+    <section class="snap">
+      <div class="card">
+        <div class="kicker">Overextraction</div>
+        <h1>Some regions have seen subsidence rates above 30 cm/yr.</h1>
+        <p>In many places, groundwater pumping has outpaced recharge—leading to land sinking, infrastructure damage, and higher costs for communities.</p>
+        <div class="scrollHint">Scroll ↓</div>
+      </div>
+    </section>
+
+    <section class="snap">
+      <div class="card">
+        <div class="kicker">Policy response</div>
+        <h1>Since 2014, SGMA has been trying to bring groundwater use into balance.</h1>
+        <p class="muted">Implementation is uneven: some plan areas are further along (approved/adequate) while others remain incomplete or under review.</p>
+        <div class="scrollHint">Scroll ↓</div>
+      </div>
+    </section>
+
+    <section class="snap">
+      <div class="card">
+        <div class="kicker">Equity question</div>
+        <h1>Will SGMA stop record-breaking subsidence—or shift costs onto small farmers?</h1>
+        <p>Press the button below to explore how regions in the SJV changed since SGMA implementation.</p>
+        <div class="introActions">
+          <a class="btn" href="#atlas" id="goAtlas">Press here to explore the atlas</a>
+          <a class="btn secondary" href="#atlas" onclick="document.getElementById('atlas').scrollIntoView({{behavior:'smooth'}}); return false;">Jump to map</a>
+        </div>
+        <div class="divider"></div>
+        <div class="introGrid">
+          <div class="mini"><b>Left:</b> Map of counties + GSA outline. Toggle <b>GSP</b> to view plan areas and regulation progress.</div>
+          <div class="mini"><b>Middle:</b> Comparison scatter (county mode) or <b>subbasin scatter</b> (GSP mode) to test “mechanism” stories.</div>
+          <div class="mini"><b>Right:</b> Click a county (or a GSP) to see <b>Pre / Post / Δ</b> (or <b>Pre approval / Post approval / Δ</b>).</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="app" id="atlas">
   <div class="top">
     <div>
       <h1>SGMA Equity Pathways — San Joaquin Valley</h1>
-      <p>Use the scatter to test mechanism stories: overdraft (groundwater/subsidence) ↔ community harm (well failures) ↔ farm adjustment (fallowing + consolidation), with CalEnviroScreen as vulnerability context.</p>
+      <p>Orientation: left map (counties + GSA outline; toggle GSP for plan areas). Middle compares regions. Right shows selected county/GSP metrics for Pre, Post, and Change (Δ).</p>
     </div>
     <div class="toggles" role="group" aria-label="Period toggle">
       <button id="btn-pre" class="active" type="button">Pre-SGMA</button>
