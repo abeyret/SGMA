@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>ECON 30 — SGMA &amp; San Joaquin Valley Equity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <link rel="stylesheet" href="thesis_presentation.css"/>
+  <!-- THESIS_DATA_INLINE -->
+</head>
+<body>
+  <div class="progress"><span id="progressBar"></span></div>
+  <header class="chrome">
+    <span>Alexandra Beyret · ECON 30</span>
+    <span id="slideNum">1 / 18</span>
+    <span class="hint">← → · Space · F fullscreen</span>
+  </header>
+
+  <main class="deck">
+
+    <!-- 0 Title (ECON107) -->
+    <section class="slide active slide-title" data-n="0">
+      <img class="slide-photo" src="./assets/ppt/image8.png" alt="San Joaquin Valley aerial"/>
+      <div class="slide-shade"></div>
+      <div class="slide-body center">
+        <p class="kicker">Senior thesis · ECON 30 · May 2026</p>
+        <h1>San Joaquin Central Valley&rsquo;s Water Problem</h1>
+        <p class="lead">Groundwater overdraft, subsidence &amp; equity under California&rsquo;s Sustainable Groundwater Management Act</p>
+      </div>
+    </section>
+
+    <!-- 1 Subsidence -->
+    <section class="slide slide-split" data-n="1">
+      <div class="text-panel">
+        <p class="kicker">01 · Physical cost · TRE Altamira / DWR</p>
+        <h2>The San Joaquin Central Valley is sinking</h2>
+        <div class="rule"></div>
+        <p>Land subsidence is measured by InSAR vertical displacement and USGS benchmarks. Hotspots near <strong>Corcoran</strong> and <strong>El Nido</strong> show sustained compaction from long-term overdraft.</p>
+        <ul class="data-list">
+          <li><strong>&gt;30 cm/yr</strong> peak rates in parts of the valley (Faunt et al., 2016)</li>
+          <li><strong>14 km³</strong> subsidence volume, 2006–2022 (Knight &amp; Lee, 2024)</li>
+          <li><strong>9 m</strong> historic subsidence, 1925–1977 (USGS benchmark S661)</li>
+          <li><strong>6.2 ft</strong> additional subsidence, 1988–2016 (Benchmark H1251)</li>
+        </ul>
+        <p class="source">Source: TRE Altamira InSAR (CNRA); USGS/DWR benchmark surveys</p>
+      </div>
+      <div class="media-panel">
+        <img src="./assets/ppt/image4.png" alt="Subsidence rate map"/>
+        <p class="fig-cap">InSAR-derived subsidence intensity — purple/pink = highest vertical displacement</p>
+      </div>
+    </section>
+
+    <!-- 2 Overdraft -->
+    <section class="slide slide-split" data-n="2">
+      <div class="text-panel">
+        <p class="kicker">02 · Overdraft · DWR Bulletin 118</p>
+        <h2>Critically overdrafted groundwater basins</h2>
+        <div class="rule"></div>
+        <p>California designates basins where pumping chronically exceeds recharge. The San Joaquin Valley contains the largest cluster of <strong>critically overdrafted</strong> basins — triggering mandatory SGMA sustainability plans.</p>
+        <ul class="data-list">
+          <li>Overdraft = extraction &gt; natural + artificial recharge</li>
+          <li><strong id="tGspTotal">45</strong> GSPs cover the valley under SGMA</li>
+          <li><strong id="tGwDecline">6</strong>/8 counties still show groundwater decline post-2014</li>
+        </ul>
+        <img class="fig-chart" id="figGwe" alt="County groundwater change chart"/>
+        <p class="source">Basin map: DWR Bulletin 118 · Chart: county Δ groundwater (ft), CASGEM 2012–14 vs 2018–22</p>
+      </div>
+      <div class="media-panel">
+        <img src="./assets/ppt/image2.png" alt="Critically overdrafted basins"/>
+        <p class="fig-cap">DWR critically overdrafted basins — San Joaquin Valley highlighted</p>
+      </div>
+    </section>
+
+    <!-- 3 Mechanism -->
+    <section class="slide slide-split" data-n="3">
+      <div class="media-panel gif-panel">
+        <img src="./assets/ppt/image9.gif" alt="Aquifer compaction animation"/>
+        <p class="fig-cap">Pumping lowers pore-water pressure → clay compacts → land subsides (largely irreversible)</p>
+      </div>
+      <div class="text-panel">
+        <p class="kicker">03 · Mechanism</p>
+        <h2>Subsidence stems from overdraft</h2>
+        <div class="rule"></div>
+        <p>When hydraulic head drops, effective stress on aquifer grains increases. Fine-grained layers compact permanently — reducing storage and sinking infrastructure built on a fixed grade.</p>
+        <img class="inline-diagram" src="./assets/ppt/image11.png" alt="Canal subsidence cross-section"/>
+        <ul class="data-list compact">
+          <li>Aqueduct grade disrupted → <strong>choke points</strong>, ↓ conveyance capacity</li>
+          <li>Well casings appear to <strong>protrude</strong> as land settles around them</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 4 Costs -->
+    <section class="slide slide-split" data-n="4">
+      <div class="text-panel">
+        <p class="kicker">04 · Economic damages</p>
+        <h2>Subsidence costs billions in repairs</h2>
+        <div class="rule"></div>
+        <div class="metric-grid">
+          <div class="metric"><span class="val" id="tFedCost">$889M</span><span class="lbl">Federal SJV canal repair funding (Mar 2026)</span></div>
+          <div class="metric"><span class="val" id="tHousingCost">$1.87B</span><span class="lbl">Housing value at risk — subsidence flooding (Jul 2025)</span></div>
+          <div class="metric"><span class="val">$10–30k</span><span class="lbl">Household well repair/replacement (DWR dry-well DB)</span></div>
+        </div>
+        <p>Rigid infrastructure — canals, bridges, levees — requires continuous maintenance as land settles. Costs transfer overdraft externalities to agencies, irrigators, and households.</p>
+        <p class="source">Infrastructure: federal appropriations · Wells: DWR HWSSRS</p>
+      </div>
+      <div class="media-panel">
+        <img src="./assets/intro_slide1.png" alt="Canal repair"/>
+        <p class="fig-cap">Canal embankment repair — Central Valley conveyance corridor</p>
+      </div>
+    </section>
+
+    <!-- 5 Consequences -->
+    <section class="slide slide-content" data-n="5">
+      <p class="kicker">05 · Externalities of overdraft</p>
+      <h2>Subsidence is only one consequence</h2>
+      <div class="rule"></div>
+      <div class="impact-cols">
+        <article class="impact-box">
+          <h3>Flow patterns</h3>
+          <p>Gravity-fed canals lose slope as land sinks → ↓ cfs capacity, ↑ energy and cost to deliver the same water.</p>
+        </article>
+        <article class="impact-box">
+          <h3>Water quantity</h3>
+          <p>Dry-well reports (issue start): <strong id="sWellPre">—</strong> → <strong id="sWellPost">—</strong> across 8 counties (<strong id="sWellRatio">—</strong>×).</p>
+        </article>
+        <article class="impact-box">
+          <h3>Water quality</h3>
+          <p>Deeper pumping mobilizes salinity and legacy contaminants → ↓ drinking water quality, ↑ treatment costs.</p>
+        </article>
+        <article class="impact-box">
+          <h3>Farm structure</h3>
+          <p><strong id="sSmallLoss">—</strong> net small-farm loss (&lt;180 ac); large farms <strong id="sLargeGain">—</strong> — consolidation under water stress.</p>
+        </article>
+      </div>
+      <div class="chart-row">
+        <div class="chart-box"><h4>Dry-well reports by county</h4><img class="fig-chart" id="figWells" alt=""/></div>
+        <div class="chart-box"><h4>Small vs large farm net change</h4><img class="fig-chart" id="figFarms" alt=""/></div>
+      </div>
+      <p class="source">DWR dry-well reporting · USDA NASS farm operations 2012 vs 2022</p>
+    </section>
+
+    <!-- 6 SGMA intro -->
+    <section class="slide slide-split" data-n="6">
+      <div class="text-panel">
+        <p class="kicker">06 · Policy · SGMA 2014</p>
+        <h2>Sustainable Groundwater Management Act</h2>
+        <div class="rule"></div>
+        <p>California&rsquo;s first statewide groundwater law requires local <strong>Groundwater Sustainability Agencies</strong> to adopt <strong>Groundwater Sustainability Plans</strong> achieving sustainable yield by 2040 (2042 for critically overdrafted basins).</p>
+        <ul class="data-list" id="gspStatusList">
+          <li><strong id="sGspApproved">—</strong> GSPs by DWR determination status (see chart)</li>
+          <li>DWR evaluates GSPs; state intervention if plans are inadequate</li>
+          <li>Kings County basin probation (2024) — first enforcement under SGMA</li>
+        </ul>
+        <img class="fig-chart sm" id="figGspBar" alt="GSP status"/>
+      </div>
+      <div class="media-panel stack">
+        <img src="./assets/ppt/image3.png" alt="DWR GSP decisions"/>
+        <img src="./assets/ppt/image7.png" alt="SGMA impact on growers"/>
+      </div>
+    </section>
+
+    <!-- 7 GSP map static -->
+    <section class="slide slide-full" data-n="7">
+      <div class="banner">
+        <p class="kicker" style="margin:0;color:var(--accent)">07 · GSP governance</p>
+        <h2>45 groundwater sustainability plan areas — determination status</h2>
+      </div>
+      <div class="fill">
+        <img id="figGspMap" src="./assets/deck/gsp_map.png" alt="GSP plan area map colored by status"/>
+      </div>
+      <p class="fig-cap banner-cap" id="gspMapCap">DWR SGMA portal · standardized status · 132 GSAs implement locally</p>
+    </section>
+
+    <!-- 8 Agriculture vs residents -->
+    <section class="slide slide-split" data-n="8">
+      <div class="text-panel">
+        <p class="kicker">08 · Who bears the cost?</p>
+        <h2>Agriculture vs. residents under SGMA</h2>
+        <div class="rule"></div>
+        <p>SGMA assigns pumping regulation to local GSAs — often dominated by agricultural interests. Domestic wells are typically <strong>shallow and unregistered</strong>, failing before deep irrigation wells.</p>
+        <div class="stakeholder-row">
+          <div class="stake-box">
+            <h4>Agriculture</h4>
+            <p>Large pumpers, permanent crops, fallowing flexibility, representation on GSA boards.</p>
+          </div>
+          <div class="stake-box">
+            <h4>Residents &amp; small farms</h4>
+            <p>Household wells, limited capital, CalEnviroScreen burden — harm rises even as plans are approved.</p>
+          </div>
+        </div>
+        <p class="source">Community Water Center · DWR dry-well database · GSA governance structure</p>
+      </div>
+      <div class="media-panel">
+        <img src="./assets/ppt/image5.png" alt="Agriculture and community water"/>
+        <p class="fig-cap">Central Valley irrigation vs. domestic supply — asymmetric exposure to drawdown</p>
+      </div>
+    </section>
+
+    <!-- 9 Institutions -->
+    <section class="slide slide-content" data-n="9">
+      <p class="kicker">09 · SGMA institutions</p>
+      <h2>Basins, subbasins, GSAs &amp; GSPs — how they relate</h2>
+      <div class="rule"></div>
+      <div class="inst-layout">
+        <div class="inst-defs">
+          <article><h3>Groundwater basin</h3><p>DWR Bulletin 118 hydrologic unit — the <strong>San Joaquin Valley</strong> is one major basin containing many subbasins.</p></article>
+          <article><h3>Subbasin</h3><p>Hydrologic subdivision (<strong id="tSubbasins">18</strong> in this dataset). GSP metrics aggregate here.</p></article>
+          <article><h3>GSA</h3><p>Local public agency with authority to regulate pumping. <strong id="tGsa">132</strong> GSA boundaries overlap the valley.</p></article>
+          <article><h3>GSP</h3><p>Plan document for sustainable yield. <strong id="tGsp">45</strong> GSP polygons in the SJV.</p></article>
+        </div>
+        <div class="inst-visual">
+          <img src="./assets/ppt/image6.png" alt="Basin and subbasin boundaries"/>
+          <p class="fig-cap">SJV basin subdivided into subbasins (DWR / GSA boundaries)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 Is SGMA the solution? -->
+    <section class="slide slide-content slide-verdict" data-n="10">
+      <p class="kicker">10 · Stakeholder views</p>
+      <h2>Is SGMA the solution?</h2>
+      <div class="rule"></div>
+      <div class="quote-grid" id="quoteGrid"></div>
+      <div class="econ-q">Ten years in: governance is in place, but physical harm to households and small farms has <em>not</em> reversed.</div>
+    </section>
+
+    <!-- 11 Research question -->
+    <section class="slide slide-quote" data-n="11">
+      <div class="slide-body center dark">
+        <p class="kicker">Research question · ECON107 slide 10</p>
+        <blockquote>Is SGMA reducing the consequences of groundwater overdraft <em>equitably</em> — or shifting costs onto small farmers and disadvantaged communities?</blockquote>
+        <p class="lead">County panel (n=8) · 45 GSP plan areas · DWR wells · CASGEM · CDL fallow · NASS farm size · CalEnviroScreen</p>
+      </div>
+    </section>
+
+    <!-- 12 Data & sources (ECON30 §7) -->
+    <section class="slide slide-content" data-n="12">
+      <p class="kicker">12 · Data &amp; sources · ECON 30 Section 7</p>
+      <h2>What we measure — and where it comes from</h2>
+      <div class="rule"></div>
+      <div class="sources-grid" id="sourcesGrid"></div>
+      <div class="methods-box">
+        <h3>Panel design</h3>
+        <p>Pre-SGMA window (2012–2014) vs post-SGMA (2018–2022) at county and GSP scale. Dry-well counts use DWR issue-start year with county normalization. Groundwater from CASGEM/MNM monitoring networks. Fallow from CDL via sgma_research pipeline.</p>
+      </div>
+    </section>
+
+    <!-- 13 Dry wells time series -->
+    <section class="slide slide-split" data-n="13">
+      <div class="text-panel">
+        <p class="kicker">13 · Household harm</p>
+        <h2>Dry-well reporting accelerated after SGMA</h2>
+        <div class="rule"></div>
+        <p>Valley-wide dry-well reports rose from <strong id="vWellPre">—</strong> to <strong id="vWellPost">—</strong> in the pre/post comparison window — a <strong id="vWellRatio">—</strong>× increase. Post-2014 reporting regime changes may amplify counts, but the directional harm signal is robust across counties.</p>
+        <ul class="data-list">
+          <li>Shallow domestic wells fail first under drawdown</li>
+          <li>Repair costs ($10–30k) fall on households without district backup</li>
+          <li>Disadvantaged communities show higher well-failure burden (CalEnviroScreen)</li>
+        </ul>
+      </div>
+      <div class="media-panel chart-panel">
+        <img class="fig-chart tall" id="figDryTs" alt="Dry well time series"/>
+        <p class="fig-cap">Issue-start year · valley total · vertical line = SGMA enactment (2014)</p>
+      </div>
+    </section>
+
+    <!-- 14 Live GSP map (interactive) -->
+    <section class="slide slide-map" data-n="14">
+      <div class="map-header">
+        <p class="kicker">14 · Interactive element · ECON 30 Section 7</p>
+        <h2>Explore GSP plan areas — click for status</h2>
+      </div>
+      <div id="mapGspLeaflet" class="leaflet-map"></div>
+      <div class="map-legend-bar" id="mapLegend"></div>
+    </section>
+
+    <!-- 15 Physical + agricultural adjustment -->
+    <section class="slide slide-content" data-n="15">
+      <p class="kicker">15 · Basin adjustment</p>
+      <h2>Fallowing tracks groundwater stress — but equity does not</h2>
+      <div class="rule"></div>
+      <div class="impl-layout">
+        <div class="chart-panel">
+          <h3>Δ fallow vs Δ groundwater <span class="r2tag" id="r2Tag">R²</span></h3>
+          <img class="fig-chart" id="figScatter" alt="Scatter regression"/>
+        </div>
+        <div class="chart-panel">
+          <h3>Evidence summary</h3>
+          <div class="evidence-box" id="evidenceBox"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16 Verdict -->
+    <section class="slide slide-content slide-verdict" data-n="16">
+      <p class="kicker">16 · Takeaways</p>
+      <h2>Mixed verdict: governance progress, persistent inequity</h2>
+      <div class="rule"></div>
+      <div class="verdict-cols">
+        <div class="verdict-no">
+          <h3>Not yet equitable — residents &amp; small farms</h3>
+          <ul id="verdictNo"></ul>
+        </div>
+        <div class="verdict-yes">
+          <h3>Partial progress — policy &amp; large-scale adjustment</h3>
+          <ul id="verdictYes"></ul>
+        </div>
+      </div>
+      <div class="verdict-bottom">
+        <img src="./assets/ppt/image10.png" alt="Crop acreage trends"/>
+        <p id="verdictConclusion"><strong>Conclusion:</strong> SGMA has built governance and induced fallowing in stressed basins, but has not equitably reduced domestic well failures or farm consolidation.</p>
+      </div>
+    </section>
+
+    <!-- 17 Atlas + next steps -->
+    <section class="slide slide-final" data-n="17">
+      <div class="inner">
+        <p class="kicker">17 · Next steps · ECON 30 Section 7</p>
+        <h1>SGMA Equity Pathways — San Joaquin Valley Atlas</h1>
+        <p class="lead">Maps · county/GSP cards · pre/post comparisons · regression explorer</p>
+        <ul class="next-steps">
+          <li>Extend GSP panel through 2024 implementation milestones</li>
+          <li>Link GSA board composition to household outcomes</li>
+          <li>Track Kings County probation as first enforcement test case</li>
+        </ul>
+        <a class="btn" href="index.html">Open full interactive atlas →</a>
+        <p class="source light">Alexandra Beyret · ECON 30 · Questions welcome</p>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="nav-arrows">
+    <button type="button" class="nav-btn" id="navPrev" aria-label="Previous">‹</button>
+    <button type="button" class="nav-btn" id="navNext" aria-label="Next">›</button>
+  </nav>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="atlas_data.js"></script>
+  <script src="thesis_presentation.js"></script>
+</body>
+</html>

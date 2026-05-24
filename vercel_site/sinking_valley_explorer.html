@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Sinking Valley Explorer — SGMA Effectiveness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="sinking_valley_explorer.css"/>
+</head>
+<body>
+  <nav class="top-tabs" id="top-tabs">
+    <div class="top-tabs-inner">
+      <span class="top-brand">Sinking Valley Explorer</span>
+      <button type="button" class="tab-btn active" data-tab="home">Home</button>
+      <button type="button" class="tab-btn" data-tab="explorer">Explorer</button>
+      <button type="button" class="tab-btn" data-tab="close">Close view</button>
+      <button type="button" class="tab-btn" data-tab="relationships">Variable relationships</button>
+      <button type="button" class="tab-btn" data-tab="takeaways">Takeaways</button>
+      <button type="button" class="tab-btn" data-tab="sources">Sources</button>
+    </div>
+  </nav>
+  <div id="tab-home" class="tab-panel active">
+    <div class="intro-page" id="intro-page">
+      <header class="intro-hero intro-hero-photo">
+        <div class="intro-hero-overlay"></div>
+        <div class="intro-hero-content">
+        <p class="intro-eyebrow">San Joaquin Valley · Groundwater &amp; equity</p>
+        <h1>The San Joaquin Central Valley is sinking.</h1>
+        <p class="intro-lede">Decades of <dfn class="intro-dfn" title="Pumping more groundwater out than is naturally replenished">groundwater overextraction</dfn> have compacted aquifers, damaged canals, and left household wells dry. California developed new regulation to mitigate these consequences through the 2014 Sustainable Groundwater Management Act (SGMA). More than a decade on, is groundwater regulation being implemented in ways that address the problem it sought to solve?</p>
+        <a href="#" class="intro-cta" data-goto-tab="explorer">Open the map explorer →</a>
+        </div>
+      </header>
+      <section class="intro-section">
+        <h2>Why this matters</h2>
+        <div class="intro-subsidence-panel">
+          <div class="intro-subsidence-callout" id="intro-subsidence-callout"></div>
+          <figure class="intro-subsidence-mechanism" id="intro-subsidence-mechanism"></figure>
+        </div>
+        <div class="intro-why-grid">
+          <div class="intro-stakes-metrics" id="intro-metrics"></div>
+          <figure class="intro-subsidence-fig" id="intro-subsidence-fig"></figure>
+          <div class="intro-impact-tiles" id="intro-impact-tiles"></div>
+        </div>
+      </section>
+      <section class="intro-section">
+        <h2>Is SGMA the solution?</h2>
+        <p class="intro-body" id="intro-sgma-stakes"></p>
+        <p class="intro-body">SGMA requires critically overdrafted groundwater basins to form Groundwater Sustainability Agencies (GSAs) and adopt Groundwater Sustainability Plans (GSPs) reaching sustainable yield by 2040 (2042 for the worst basins). DWR reviews each plan against six Sustainable Management Criteria (SMC), the undesirable results local agencies must avoid:</p>
+        <div class="smc-bubbles" id="intro-smc"></div>
+      </section>
+      <section class="intro-section">
+        <h2>Voices from the valley</h2>
+        <div class="intro-quotes-slideshow" id="intro-quotes-slideshow" tabindex="0" role="region" aria-label="Valley quotes slideshow"></div>
+      </section>
+      <section class="intro-section">
+        <h2>Key terms</h2>
+        <dl class="intro-glossary" id="intro-glossary"></dl>
+      </section>
+      <footer class="intro-footer">
+        <p><a href="#" class="intro-cta inline-cta" data-goto-tab="explorer">Open the Explorer →</a> for subsidence &amp; overdraft maps · <strong>Close view</strong> for GSP-by-GSP metrics · <strong>Takeaways</strong> for synthesis · <strong>Variable relationships</strong> for before/after comparisons.</p>
+        <p class="intro-credit">Alexandra Beyret · ECON 30 · DWR InSAR · MNM wells · Land IQ · NASS · dry-well reporting</p>
+      </footer>
+    </div>
+  </div>
+  <div id="tab-explorer" class="tab-panel">
+  <div id="map"></div>
+  <div id="compare-container" aria-hidden="true">
+    <div class="split-maps-row">
+      <div class="split-pane">
+        <div id="map-od"></div>
+        <div class="split-label-block">
+          <span class="split-label-title">Groundwater stress</span>
+          <span class="split-label-sub" id="compare-od-label">Overdraft layer</span>
+        </div>
+      </div>
+      <div class="split-divider"></div>
+      <div class="split-pane">
+        <div id="map-eq"></div>
+        <div class="split-label-block">
+          <span class="split-label-title">Equity lens</span>
+          <span class="split-label-sub" id="compare-eq-label">Equity layer</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="split-container" aria-hidden="true">
+    <div class="split-maps-row">
+      <div class="split-pane">
+        <div id="map-pre"></div>
+        <div class="split-label-block">
+          <span class="split-label-title" id="split-label-pre">Before SGMA</span>
+          <span class="split-label-sub" id="split-sub-pre">Pre-2014 groundwater elevation</span>
+        </div>
+      </div>
+      <div class="split-divider"></div>
+      <div class="split-pane">
+        <div id="map-post"></div>
+        <div class="split-label-block">
+          <span class="split-label-title" id="split-label-post">After SGMA</span>
+          <span class="split-label-sub" id="split-sub-post">2024 groundwater elevation</span>
+        </div>
+      </div>
+    </div>
+    <div class="split-caption" id="split-caption"></div>
+    <aside class="split-legend-panel" id="split-legend-panel">
+      <h3 id="split-legend-title">Water table elevation (ft)</h3>
+      <div class="subsidence-bar split-drop-bar" id="split-gwe-bar"></div>
+      <div class="bar-labels split-bar-labels">
+        <span id="split-legend-min">Lower (deeper)</span>
+        <span id="split-legend-mid" class="split-legend-mid">same scale</span>
+        <span id="split-legend-max">Higher (shallower)</span>
+      </div>
+      <p class="split-legend-note" id="split-legend-note"></p>
+    </aside>
+  </div>
+  <div class="hud">
+    <header>
+      <p class="eyebrow">SJV Explorer · DWR InSAR + MNM</p>
+      <h1>Sinking Valley</h1>
+      <p class="lede">Track subsidence and the same GSP groundwater metrics as Close view — water table vs pre-2016 baseline and 4-yr trend — plus fallowing and water access.</p>
+    </header>
+    <div class="split-toggle-bar" id="split-controls">
+      <label><input type="checkbox" id="toggle-split"/> Before / after water table (2014 vs 2024)</label>
+    </div>
+    <div class="hud-body" id="hud-body">
+      <div class="controls">
+        <label for="year-slider">Year</label>
+        <input type="range" id="year-slider" min="2012" max="2024" value="2024" step="1"/>
+        <div class="year-row"><span id="year-label">2024</span><button id="play-btn" type="button">▶ Play</button></div>
+      </div>
+      <hr class="rule"/>
+      <div class="controls">
+        <label for="subsidence-select">Subsidence layer</label>
+        <select id="subsidence-select">
+          <option value="annual_rate">Annual rate (green=slow · red=fast)</option>
+          <option value="cumulative">Cumulative since Jun 2015</option>
+          <option value="none" selected>None</option>
+        </select>
+      </div>
+      <hr class="rule"/>
+      <div class="controls">
+        <label for="overdraft-select">Overdraft layer</label>
+        <select id="overdraft-select">
+          <option value="cumulative">Water table vs pre-2016 baseline</option>
+          <option value="annual">Water table trend (4-yr, ft/yr)</option>
+          <option value="none" selected>None</option>
+        </select>
+        <p class="note" id="overdraft-desc"></p>
+      </div>
+      <hr class="rule"/>
+      <div class="controls">
+        <label for="effectiveness-select">Equity lens</label>
+        <select id="effectiveness-select">
+          <option value="none" selected>None</option>
+          <option value="gsp_status">GSP status</option>
+          <option value="fallowed_land">Fallowed land</option>
+          <option value="water_access">Water access (cumulative)</option>
+          <option value="farm_consolidation">Farm consolidation (NASS)</option>
+          <option value="ag_production">Cropland acres (Land IQ)</option>
+        </select>
+        <p class="note" id="lens-desc"></p>
+      </div>
+      <hr class="rule"/>
+      <div class="controls">
+        <label for="compare-select">Equity ↔ GWE view</label>
+        <select id="compare-select">
+          <option value="side_by_side" selected>Side-by-side maps</option>
+          <option value="scatter">Scatter plot</option>
+          <option value="overlay">Stacked overlay</option>
+        </select>
+        <p class="note" id="compare-desc"></p>
+      </div>
+      <hr class="rule"/>
+      <div class="toggles">
+        <label><input type="checkbox" id="toggle-counties" checked/> County borders</label>
+        <label><input type="checkbox" id="toggle-well-dots"/> Show dry-well points</label>
+      </div>
+      <hr class="rule"/>
+      <p class="note" id="baseline-note"></p>
+      <p class="note" id="well-stats"></p>
+      <p class="credit">Subsidence: DWR TRE Altamira SAR · GWE: DWR MNM · Dry wells: DWR reporting (bias-adjusted).</p>
+    </div>
+  </div>
+  <aside class="legend-panel" id="legend-panel">
+    <div id="subsidence-legend">
+      <h3 id="subsidence-legend-title">Subsidence rate</h3>
+      <div class="subsidence-bar" id="subsidence-bar"></div>
+      <div class="bar-labels"><span id="legend-min">Slower</span><span id="legend-max">Faster</span></div>
+    </div>
+    <div id="overdraft-legend">
+      <h3 id="overdraft-legend-title">Water table vs pre-2016 baseline (ft)</h3>
+      <div class="subsidence-bar overdraft-bar" id="overdraft-bar"></div>
+      <div class="bar-labels"><span id="overdraft-legend-min">Above baseline</span><span id="overdraft-legend-max">Below baseline</span></div>
+    </div>
+    <div id="scatter-panel">
+      <h3 id="scatter-title">Equity vs groundwater stress</h3>
+      <canvas id="scatter-canvas" width="260" height="180"></canvas>
+      <div class="bar-labels"><span id="scatter-x-label">Equity metric</span><span id="scatter-y-label">GWE stress</span></div>
+    </div>
+    <div id="effectiveness-legend">
+      <h3 id="effectiveness-legend-title">GSP status</h3>
+      <div id="effectiveness-legend-body"></div>
+    </div>
+  </aside>
+  </div>
+  <div id="tab-close" class="tab-panel">
+    <div class="panel-page">
+      <header class="panel-header">
+        <h1>Close view</h1>
+        <p class="lede">All San Joaquin Valley GSPs — same groundwater metrics as the Explorer overdraft layers (baseline + 4-yr trend), compared 2016 → 2024.</p>
+      </header>
+      <div class="panel-controls">
+        <label for="close-gsp-select">GSP</label>
+        <select id="close-gsp-select"></select>
+        <label class="inline-check"><input type="checkbox" id="close-approved-only"/> Approved plans only</label>
+      </div>
+      <div id="close-gsp-meta" class="close-meta"></div>
+      <div id="close-determination" class="close-determination-block">
+        <h4>Determination: <span id="close-verdict" class="verdict-text">—</span></h4>
+        <div class="close-assessment" id="close-assessment"></div>
+      </div>
+      <h3 class="close-metrics-heading">2016 → 2024 metrics</h3>
+      <div id="close-metrics" class="metric-grid"></div>
+      <p class="note panel-note">Subsidence is valley-wide InSAR on the Explorer tab (not aggregated per GSP here). Water table vs baseline: positive = below pre-2016 average (deeper); negative = above (higher). Green deltas mean improvement 2016→2024, not necessarily “good” today. Dry-well counts reflect expanded DWR reporting since ~2020.</p>
+    </div>
+  </div>
+  <div id="tab-relationships" class="tab-panel">
+    <div class="panel-page panel-wide">
+      <header class="panel-header">
+        <h1>Variable relationships</h1>
+        <p class="lede">Each dot is one GSP. Left chart: 2016 (horizontal) vs 2024 (vertical). Right chart: change during SGMA years. For water table, negative values = above the pre-2016 baseline (higher). Descriptive only — not proof of causation.</p>
+      </header>
+      <div class="panel-controls rel-controls">
+        <label for="rel-variable-select">Variable</label>
+        <select id="rel-variable-select"></select>
+        <label for="rel-filter-select">Show</label>
+        <select id="rel-filter-select">
+          <option value="all">All GSPs</option>
+          <option value="approved">Approved only</option>
+          <option value="regulated">Approved + under review</option>
+        </select>
+      </div>
+      <p class="note" id="rel-variable-note"></p>
+      <p class="note rel-caveat hidden" id="rel-caveat"></p>
+      <p class="note rel-gwe-note hidden" id="rel-gwe-note"></p>
+      <div id="rel-tooltip" class="rel-tooltip hidden"></div>
+      <div class="rel-charts">
+        <div class="rel-chart-box">
+          <h3 id="rel-paired-title">2016 vs 2024 (paired)</h3>
+          <p class="chart-hint" id="rel-paired-hint"></p>
+          <canvas id="rel-paired-canvas" width="480" height="360"></canvas>
+          <div class="rel-axis-legend"><span id="rel-good-label"></span><span id="rel-bad-label"></span></div>
+        </div>
+        <div class="rel-chart-box">
+          <h3 id="rel-delta-title">SGMA-era change (2024 − 2016)</h3>
+          <p class="chart-hint">Bar height = change during SGMA years. Teal = approved · Amber = under review · Red = inadequate · Maroon = state intervention.</p>
+          <canvas id="rel-delta-canvas" width="480" height="360"></canvas>
+        </div>
+      </div>
+      <div id="rel-summary" class="rel-summary"></div>
+    </div>
+  </div>
+  <div id="tab-takeaways" class="tab-panel">
+    <div class="intro-page takeaways-page">
+      <header class="panel-header">
+        <h1>Takeaways</h1>
+        <p class="lede" id="takeaways-lede"></p>
+        <p class="takeaways-sgma-answer" id="takeaways-sgma-answer" hidden></p>
+      </header>
+      <div id="takeaways-sections" class="takeaways-sections"></div>
+      <footer class="intro-footer">
+        <p>Explore the data: <a href="#" class="intro-cta inline-cta" data-goto-tab="close">Close view</a> for GSP metrics · <a href="#" class="intro-cta inline-cta" data-goto-tab="explorer">Explorer</a> for subsidence maps · <a href="#" class="intro-cta inline-cta" data-goto-tab="relationships">Variable relationships</a> for 2016→2024 comparisons.</p>
+      </footer>
+    </div>
+  </div>
+  <div id="tab-sources" class="tab-panel">
+    <div class="intro-page sources-page">
+      <header class="panel-header">
+        <h1>Sources</h1>
+        <p class="lede" id="sources-intro"></p>
+      </header>
+      <ul class="sources-list" id="sources-list"></ul>
+      <p class="intro-credit">Alexandra Beyret · ECON 30 · May 2026</p>
+    </div>
+  </div>
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="sinking_valley_explorer.js"></script>
+  <script src="sinking_valley_explorer_panels.js"></script>
+</body>
+</html>

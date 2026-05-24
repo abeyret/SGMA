@@ -1,0 +1,182 @@
+{
+  "generated_at_utc": "2026-05-24T02:19:10.302598+00:00",
+  "source": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR",
+  "provider": "DWR TRE Altamira InSAR via ArcGIS ImageServer",
+  "study_area": "8 SJV counties (Fresno, Kern, Kings, Madera, Merced, San Joaquin, Stanislaus, Tulare)",
+  "bbox_wgs84": {
+    "xmin": -121.596074,
+    "ymin": 34.776655,
+    "xmax": -117.604518,
+    "ymax": 38.312252
+  },
+  "units": "feet (vertical displacement; annual layers = displacement during epoch)",
+  "baseline_note": "Cumulative layers share reference date 2015-06-13 (Total_Since_20150613). Safe for direct time-slider comparison. Annual rate layers measure displacement during each Dec\u2013Dec period only \u2014 not additive across different reference frames.",
+  "annual_rate_layers": [
+    {
+      "year": 2016,
+      "epoch": "2016-12-01 to 2017-12-01",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20161201_20171201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20161201_20171201/ImageServer/exportImage",
+      "file": "outputs/subsidence/yearly/annual_rate_2016_2017.png",
+      "bytes": 55246,
+      "export_sec": 2.38
+    },
+    {
+      "year": 2017,
+      "epoch": "2017-12-01 to 2018-12-01",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20171201_20181201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20171201_20181201/ImageServer/exportImage",
+      "file": "outputs/subsidence/yearly/annual_rate_2017_2018.png",
+      "bytes": 56554,
+      "export_sec": 2.31
+    },
+    {
+      "year": 2018,
+      "epoch": "2018-12-01 to 2019-12-01",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20181201_20191201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20181201_20191201/ImageServer/exportImage",
+      "file": "outputs/subsidence/yearly/annual_rate_2018_2019.png",
+      "bytes": 54841,
+      "export_sec": 3.12
+    },
+    {
+      "year": 2019,
+      "epoch": "2019-12-01 to 2020-12-01",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20191201_20201201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20191201_20201201/ImageServer/exportImage",
+      "file": "outputs/subsidence/yearly/annual_rate_2019_2020.png",
+      "bytes": 58853,
+      "export_sec": 2.95
+    },
+    {
+      "year": 2020,
+      "epoch": "2020-12-01 to 2021-12-01",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20201201_20211201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20201201_20211201/ImageServer/exportImage",
+      "file": "outputs/subsidence/yearly/annual_rate_2020_2021.png",
+      "bytes": 60568,
+      "export_sec": 2.69
+    },
+    {
+      "year": 2021,
+      "epoch": "2021-12-01 to 2022-12-01",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20211201_20221201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20211201_20221201/ImageServer/exportImage",
+      "file": "outputs/subsidence/yearly/annual_rate_2021_2022.png",
+      "bytes": 63072,
+      "export_sec": 2.32
+    },
+    {
+      "year": 2022,
+      "epoch": "2022-12-01 to 2023-12-01",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20221201_20231201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20221201_20231201/ImageServer/exportImage",
+      "file": "outputs/subsidence/yearly/annual_rate_2022_2023.png",
+      "bytes": 56685,
+      "export_sec": 3.04
+    },
+    {
+      "year": 2023,
+      "epoch": "2023-12-01 to 2024-12-01",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20231201_20241201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20231201_20241201/ImageServer/exportImage",
+      "file": "outputs/subsidence/yearly/annual_rate_2023_2024.png",
+      "bytes": 55657,
+      "export_sec": 2.64
+    },
+    {
+      "year": 2024,
+      "epoch": "2024-12-01 to 2025-12-01",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20241201_20251201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Annual_Rate_20241201_20251201/ImageServer/exportImage",
+      "file": "outputs/subsidence/yearly/annual_rate_2024_2025.png",
+      "bytes": 47623,
+      "export_sec": 2.95
+    }
+  ],
+  "cumulative_layers": [
+    {
+      "year": 2016,
+      "baseline": "2015-06-13",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20161201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20161201/ImageServer/exportImage",
+      "file": "outputs/subsidence/cumulative/cumulative_since2015_2016.png",
+      "bytes": 51939,
+      "export_sec": 1.65
+    },
+    {
+      "year": 2017,
+      "baseline": "2015-06-13",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20171201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20171201/ImageServer/exportImage",
+      "file": "outputs/subsidence/cumulative/cumulative_since2015_2017.png",
+      "bytes": 55526,
+      "export_sec": 2.98
+    },
+    {
+      "year": 2018,
+      "baseline": "2015-06-13",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20181201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20181201/ImageServer/exportImage",
+      "file": "outputs/subsidence/cumulative/cumulative_since2015_2018.png",
+      "bytes": 60594,
+      "export_sec": 2.27
+    },
+    {
+      "year": 2019,
+      "baseline": "2015-06-13",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20191201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20191201/ImageServer/exportImage",
+      "file": "outputs/subsidence/cumulative/cumulative_since2015_2019.png",
+      "bytes": 68787,
+      "export_sec": 2.13
+    },
+    {
+      "year": 2020,
+      "baseline": "2015-06-13",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20201201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20201201/ImageServer/exportImage",
+      "file": "outputs/subsidence/cumulative/cumulative_since2015_2020.png",
+      "bytes": 72009,
+      "export_sec": 2.14
+    },
+    {
+      "year": 2021,
+      "baseline": "2015-06-13",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20211201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20211201/ImageServer/exportImage",
+      "file": "outputs/subsidence/cumulative/cumulative_since2015_2021.png",
+      "bytes": 77583,
+      "export_sec": 2.76
+    },
+    {
+      "year": 2022,
+      "baseline": "2015-06-13",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20221201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20221201/ImageServer/exportImage",
+      "file": "outputs/subsidence/cumulative/cumulative_since2015_2022.png",
+      "bytes": 81190,
+      "export_sec": 2.7
+    },
+    {
+      "year": 2023,
+      "baseline": "2015-06-13",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20231201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20231201/ImageServer/exportImage",
+      "file": "outputs/subsidence/cumulative/cumulative_since2015_2023.png",
+      "bytes": 80879,
+      "export_sec": 2.69
+    },
+    {
+      "year": 2024,
+      "baseline": "2015-06-13",
+      "service": "SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20241201",
+      "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR/Vertical_Displacement_TRE_ALTAMIRA_Total_Since_20150613_20241201/ImageServer/exportImage",
+      "file": "outputs/subsidence/cumulative/cumulative_since2015_2024.png",
+      "bytes": 81845,
+      "export_sec": 2.24
+    }
+  ],
+  "slider_recommendation": "Use cumulative_layers for sinking time-lapse; annual_rate_layers for year-specific velocity.",
+  "arcgis_export_template": "https://gis.water.ca.gov/arcgisimg/rest/services/{service}/ImageServer/exportImage?bbox={xmin},{ymin},{xmax},{ymax}&bboxSR=4326&size={width},{height}&imageSR=3857&format=png&f=image"
+}

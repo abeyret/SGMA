@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SGMA Equity Briefing — San Joaquin Valley</title>
+  <link rel="stylesheet" href="sgma_equity_slideshow.css"/>
+</head>
+<body>
+  <header class="hud">
+    <div class="brand">SGMA Equity Pathways · SJV</div>
+    <div class="timer" id="timer">~8 min · <span id="slideNum">1</span>/<span id="slideTotal">14</span></div>
+  </header>
+  <nav class="nav">
+    <button type="button" id="prev" aria-label="Previous">‹</button>
+    <button type="button" id="next" aria-label="Next">›</button>
+  </nav>
+
+  <main class="deck">
+
+    <section class="slide active" data-time="0:30">
+      <p class="eyebrow">Client briefing · ECON 30 · May 2026</p>
+      <h1>Is SGMA reducing overdraft consequences <em>equitably</em>?</h1>
+      <p class="sub">San Joaquin Valley · sgma_research panel · 8 counties · 45 GSPs · 132 GSAs</p>
+      <p class="sub muted">Alexandra Beyret</p>
+    </section>
+
+    <section class="slide" data-time="0:40">
+      <h2>Executive summary</h2>
+      <div class="exec-grid" id="execGrid"></div>
+      <p class="foot">SGMA has built governance capacity and linked fallowing to groundwater stress — but household harm and small-farm loss rose unevenly across GSP areas.</p>
+    </section>
+
+    <section class="slide" data-time="0:45">
+      <h2>Governance stack: county → subbasin → GSP → GSA</h2>
+      <div class="split governance-split">
+        <div class="gov-stack" id="govStack"></div>
+        <div class="chart map-box" id="mapGov"></div>
+      </div>
+      <p class="foot">Implementation is fragmented: 45 plan areas, 132 agencies, uneven approval — hydraulic connection means lagging areas export stress.</p>
+    </section>
+
+    <section class="slide" data-time="0:50">
+      <h2>County context — where harm concentrates</h2>
+      <p class="lede">DWR dry-well reports · sgma_research county-year normalization · reporting bias flagged post-2014</p>
+      <div class="chart map-box tall" id="mapCountyWells"></div>
+    </section>
+
+    <section class="slide" data-time="0:50">
+      <h2>GSP plan areas — approval &amp; intervention status</h2>
+      <p class="lede">45 groundwater sustainability plan boundaries · DWR SGMA portal (May 2026)</p>
+      <div class="split map-split">
+        <div class="chart map-box tall" id="mapGspStatus"></div>
+        <div class="chart half" id="chartGspStatus"></div>
+      </div>
+    </section>
+
+    <section class="slide" data-time="0:45">
+      <h2>GSA boundaries — local implementation units</h2>
+      <p class="lede">132 Groundwater Sustainability Agencies nested within GSP plan areas</p>
+      <div class="chart map-box tall" id="mapGsa"></div>
+    </section>
+
+    <section class="slide" data-time="0:50">
+      <h2>Data &amp; methods</h2>
+      <div class="methods-grid" id="methodsGrid"></div>
+      <p class="foot">Pre/post windows align with SGMA adoption (2014): wells &amp; CASGEM 2012–14 vs 2018–22; CDL fallow 2012 vs 2022; GSP crop mapping WY 2014/16 vs 2021/22.</p>
+    </section>
+
+    <section class="slide" data-time="0:55">
+      <h2>Hydrology — is the aquifer recovering?</h2>
+      <div class="split">
+        <div class="chart half" id="chartGweCounty"></div>
+        <div class="chart half" id="chartGweGsp"></div>
+      </div>
+      <p class="foot">County CASGEM and GSP MNM tell different spatial stories: 6/8 counties show ΔGWE &lt; 0; GSP-level decline is widespread but heterogeneous.</p>
+    </section>
+
+    <section class="slide" data-time="0:55">
+      <h2>Household harm — dry-well reports rose after SGMA</h2>
+      <div class="split">
+        <div class="chart half" id="chartWellsCounty"></div>
+        <div class="chart half" id="chartGspWellRank"></div>
+      </div>
+      <p class="foot" id="wellFoot"></p>
+    </section>
+
+    <section class="slide" data-time="0:50">
+      <h2>Agricultural adjustment — fallow &amp; field size</h2>
+      <div class="split">
+        <div class="chart map-box" id="mapFallow"></div>
+        <div class="chart half" id="chartFallowGsp"></div>
+      </div>
+    </section>
+
+    <section class="slide" data-time="0:50">
+      <h2>Equity — farm consolidation &amp; environmental burden</h2>
+      <div class="split triple">
+        <div class="chart third" id="chartFarms"></div>
+        <div class="chart third" id="chartIncome"></div>
+        <div class="chart third" id="chartCes"></div>
+      </div>
+      <p class="foot">Small farms (&lt;180 ac) fell in every county (−4,783 net); large operations grew in five counties. CES burden does not predict pre-SGMA well harm at county scale (R²≈0.06).</p>
+    </section>
+
+    <section class="slide" data-time="1:00">
+      <h2>Econometric evidence — county (n=8) vs GSP (n=45)</h2>
+      <div class="split">
+        <div class="chart half" id="chartRegTable"></div>
+        <div class="chart half" id="chartRegScatter"></div>
+      </div>
+      <p class="foot" id="regFoot"></p>
+    </section>
+
+    <section class="slide" data-time="0:50">
+      <h2>Verdict &amp; client implications</h2>
+      <div class="verdict">
+        <div class="yes">
+          <h3>SGMA is delivering…</h3>
+          <ul id="verdictYes"></ul>
+        </div>
+        <div class="no">
+          <h3>Not yet equitable on…</h3>
+          <ul id="verdictNo"></ul>
+        </div>
+      </div>
+      <p class="answer" id="verdictAnswer"></p>
+    </section>
+
+    <section class="slide" data-time="0:30">
+      <h2>Interactive atlas &amp; data appendix</h2>
+      <p class="lede">Full county · GSP · GSA exploration with pre/post/delta layers</p>
+      <a class="cta" href="index.html">Open SGMA Equity Pathways atlas →</a>
+      <ul class="sources" id="sourcesList"></ul>
+    </section>
+
+  </main>
+
+  <!-- DECK_DATA -->
+  <script src="sgma_equity_slideshow.js"></script>
+</body>
+</html>
