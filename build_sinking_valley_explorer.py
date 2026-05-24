@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import json
 import math
+import shutil
+import subprocess
 import sys
 import zipfile
 from collections import defaultdict
@@ -66,6 +68,8 @@ MNM_DATA_CACHE = ROOT / "data/clean/_cache_external/mnm_data.csv"
 OUT_HTML = ROOT / "vercel_site/sinking_valley_explorer.html"
 OUT_INDEX = ROOT / "vercel_site/index.html"
 OUT_DATA = ROOT / "vercel_site/sinking_valley_explorer_data.json"
+ECON_OUT = ROOT / "outputs/econometrics"
+ECON_ASSETS = ROOT / "vercel_site/assets/econometrics"
 
 SJV_COUNTIES = {
     "Fresno", "Kern", "Kings", "Madera", "Merced", "San Joaquin", "Stanislaus", "Tulare",
@@ -1491,6 +1495,249 @@ def _avg(vals: list) -> float | None:
     return round(sum(nums) / len(nums), 1) if nums else None
 
 
+ECON_PLOT_FILES = [
+    "forest_correlations.png",
+    "binned_subsidence_vs_depth.png",
+    "binned_wells_vs_depth.png",
+    "binned_fallow_vs_gwe.png",
+    "approved_bootstrap_bars.png",
+    "spillover_subsidence_scatter.png",
+]
+
+
+def ensure_econometrics_outputs() -> None:
+    """Run sidecar analysis if plots are missing (does not block site build on failure)."""
+    if all((ECON_OUT / f).is_file() for f in ECON_PLOT_FILES):
+        return
+    scripts = [
+        ROOT / "analysis/explorer_gsp_econometrics.py",
+        ROOT / "analysis/explorer_gsp_robust_econometrics.py",
+    ]
+    for script in scripts:
+        if not script.is_file():
+            return
+    try:
+        for script in scripts:
+            subprocess.run(
+                [sys.executable, str(script)],
+                cwd=str(ROOT),
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+    except (subprocess.CalledProcessError, OSError) as exc:
+        print(f"Warning: econometrics sidecar failed ({exc}); Analysis tab may be sparse.", file=sys.stderr)
+
+
+def copy_econometrics_assets() -> dict[str, str]:
+    ECON_ASSETS.mkdir(parents=True, exist_ok=True)
+    web: dict[str, str] = {}
+    for fname in ECON_PLOT_FILES:
+        src = ECON_OUT / fname
+        if not src.is_file():
+            continue
+        dest = ECON_ASSETS / fname
+        shutil.copy2(src, dest)
+        web[fname.replace(".png", "")] = f"assets/econometrics/{fname}"
+    return web
+
+
+def _fmt_rho(rho: float, lo: float, hi: float) -> str:
+    if not math.isfinite(rho):
+        return "insufficient data"
+    ci = ""
+    if math.isfinite(lo) and math.isfinite(hi):
+        ci = f" (95% CI [{lo:+.2f}, {hi:+.2f}])"
+    return f"ρ = {rho:+.2f}{ci}"
+
+
+def _corr_row(corr_df: pd.DataFrame, pair_label: str) -> dict | None:
+    if corr_df.empty:
+        return None
+    hit = corr_df.loc[corr_df["pair"] == pair_label]
+    if hit.empty:
+        return None
+    r = hit.iloc[0]
+    return {
+        "rho": float(r["rho"]),
+        "ci_lo": float(r["ci_lo"]) if pd.notna(r["ci_lo"]) else None,
+        "ci_hi": float(r["ci_hi"]) if pd.notna(r["ci_hi"]) else None,
+        "n": int(r["n"]),
+    }
+
+
+def build_econometrics_page(gsp_catalog: list[dict]) -> dict:
+    ensure_econometrics_outputs()
+    assets = copy_econometrics_assets()
+
+    sjv = [g for g in gsp_catalog if g.get("is_sjv")]
+    n_approved = sum(1 for g in sjv if g.get("compliant"))
+
+    corr_df = (
+        pd.read_csv(ECON_OUT / "spearman_correlations.csv")
+        if (ECON_OUT / "spearman_correlations.csv").is_file()
+        else pd.DataFrame()
+    )
+    approved_df = (
+        pd.read_csv(ECON_OUT / "approved_bootstrap_ci.csv")
+        if (ECON_OUT / "approved_bootstrap_ci.csv").is_file()
+        else pd.DataFrame()
+    )
+
+    baseline_corr = _corr_row(corr_df, "Baseline depth vs SGMA-era change")
+    fallow_corr = _corr_row(corr_df, "Fallow ↑ vs SGMA-era GWE change")
+    wells_corr = _corr_row(corr_df, "2024 depth vs dry-well report Δ")
+    sub_corr = _corr_row(corr_df, "2024 depth vs mean subsidence")
+
+    sub_diff = None
+    if not approved_df.empty:
+        hit = approved_df.loc[approved_df["metric"] == "mean_subsidence_ft_yr"]
+        if not hit.empty:
+            r = hit.iloc[0]
+            sub_diff = {
+                "diff": float(r["diff"]),
+                "ci_lo": float(r["ci_lo"]),
+                "ci_hi": float(r["ci_hi"]),
+                "mean_approved": float(r["mean_a"]),
+                "mean_other": float(r["mean_b"]),
+            }
+
+    figures: list[dict] = []
+    if assets.get("forest_correlations"):
+        bl = _fmt_rho(
+            baseline_corr["rho"], baseline_corr["ci_lo"], baseline_corr["ci_hi"]
+        ) if baseline_corr else ""
+        figures.append({
+            "id": "forest",
+            "src": assets["forest_correlations"],
+            "title": "Rank correlations across GSP outcomes",
+            "tag": "Overview",
+            "caption": (
+                "Spearman rank correlations with bootstrap 95% confidence intervals (2,000 resamples). "
+                "Each bar is one outcome pair across San Joaquin Valley GSPs with complete data. "
+                f"Strongest pattern: basins deeper below baseline in 2016 show more recovery 2016→2024 ({bl}). "
+                "Associational only — not causal."
+            ),
+        })
+
+    if assets.get("binned_subsidence_vs_depth"):
+        sc = _fmt_rho(sub_corr["rho"], sub_corr["ci_lo"], sub_corr["ci_hi"]) if sub_corr else ""
+        figures.append({
+            "id": "subsidence_depth",
+            "src": assets["binned_subsidence_vs_depth"],
+            "title": "Environment: subsidence vs water-table depth",
+            "tag": "Environment",
+            "caption": (
+                "Each dot is one GSP; the stepped line is the mean subsidence rate within depth bins. "
+                "Positive horizontal axis = water table deeper below the pre-2016 baseline in 2024. "
+                f"Rank association {sc}. InSAR coverage varies by plan area — sparse GSPs are omitted."
+            ),
+        })
+
+    if assets.get("binned_wells_vs_depth"):
+        wc = _fmt_rho(wells_corr["rho"], wells_corr["ci_lo"], wells_corr["ci_hi"]) if wells_corr else ""
+        figures.append({
+            "id": "wells_depth",
+            "src": assets["binned_wells_vs_depth"],
+            "title": "Residents: dry-well reports vs depth stress",
+            "tag": "Residents",
+            "caption": (
+                "Change in reported dry-well counts 2016→2024 vs 2024 depth below baseline. "
+                f"Rank association {wc}. "
+                "Reporting expanded after ~2020 and counts lack a pumping denominator — treat as illustrative."
+            ),
+        })
+
+    if assets.get("binned_fallow_vs_gwe"):
+        fc = _fmt_rho(fallow_corr["rho"], fallow_corr["ci_lo"], fallow_corr["ci_hi"]) if fallow_corr else ""
+        figures.append({
+            "id": "fallow_gwe",
+            "src": assets["binned_fallow_vs_gwe"],
+            "title": "Agriculture: fallowing vs groundwater recovery",
+            "tag": "Agriculture",
+            "caption": (
+                "Teal = approved GSPs; gray = all others. Vertical axis: SGMA-era change in water-table depth "
+                "(negative = net recovery). Horizontal: increase in fallow share (percentage points). "
+                f"Rank association {fc} — producers can fallow without local table recovery, or vice versa."
+            ),
+        })
+
+    if assets.get("approved_bootstrap_bars"):
+        sub_line = ""
+        if sub_diff:
+            sub_line = (
+                f" Approved GSPs average {sub_diff['mean_approved']:.2f} ft/yr subsidence vs "
+                f"{sub_diff['mean_other']:.2f} for others (Δ = {sub_diff['diff']:+.2f}, "
+                f"95% CI [{sub_diff['ci_lo']:+.2f}, {sub_diff['ci_hi']:+.2f}])."
+            )
+        figures.append({
+            "id": "approved_bars",
+            "src": assets["approved_bootstrap_bars"],
+            "title": "Approved vs other GSPs — mean differences",
+            "tag": "Governance",
+            "caption": (
+                "Bootstrap 95% CIs for approved minus other GSP means (only five approved SJV plans). "
+                "Large subsidence gaps are descriptive — worst basins face scrutiny, so approval is not a random treatment."
+                + sub_line
+            ),
+        })
+
+    if assets.get("spillover_subsidence_scatter"):
+        figures.append({
+            "id": "spillover",
+            "src": assets["spillover_subsidence_scatter"],
+            "title": "Spatial spillover: neighbor vs own subsidence",
+            "tag": "Spatial",
+            "caption": (
+                "Neighbor-weighted mean subsidence (from GSA adjacency weights) vs each GSP's own InSAR mean. "
+                "Points above the diagonal sink faster than their weighted neighbors — expected in contiguous aquifers, "
+                "not evidence of policy spillovers."
+            ),
+        })
+
+    highlights = []
+    if baseline_corr and baseline_corr.get("rho", 0) < -0.25:
+        highlights.append({
+                "label": "Mean reversion",
+                "text": (
+                    f"GSPs deeper below baseline in 2016 show more recovery by 2024 "
+                    f"({_fmt_rho(baseline_corr['rho'], baseline_corr['ci_lo'], baseline_corr['ci_hi'])}). "
+                    "Hydrologic reversion, not proof that SGMA caused recovery."
+                ),
+            })
+    if fallow_corr:
+        highlights.append({
+            "label": "Fallowing ≠ recovery",
+            "text": (
+                f"Fallow increase and SGMA-era water-table change are essentially uncorrelated at GSP scale "
+                f"({_fmt_rho(fallow_corr['rho'], fallow_corr['ci_lo'], fallow_corr['ci_hi'])})."
+            ),
+        })
+    if sub_diff and sub_diff["ci_hi"] < 0:
+        highlights.append({
+            "label": "Approved basins sink less",
+            "text": (
+                f"Descriptive only: approved GSPs show lower mean subsidence "
+                f"({sub_diff['mean_approved']:.2f} vs {sub_diff['mean_other']:.2f} ft/yr)."
+            ),
+        })
+
+    return {
+        "lede": (
+            f"GSP-level statistical patterns across {len(sjv)} San Joaquin Valley plan areas "
+            f"({n_approved} approved in 2024), using the same metrics as Close view and Takeaways. "
+            "Spearman rank correlations, binned means, and bootstrap confidence intervals — descriptive, not causal."
+        ),
+        "caveat": (
+            "With ~45 GSPs and uneven data coverage, confidence intervals are wide and a single basin "
+            "(e.g., White Wolf, Kern hotspots) can move estimates. Dry-well counts reflect reporting, not true failure rates. "
+            "Approved-plan comparisons describe selection, not treatment effects."
+        ),
+        "highlights": highlights,
+        "figures": figures,
+    }
+
+
 def build_sources_page() -> dict:
     return {
         "intro": "Data and references for the Sinking Valley Explorer (ECON 30).",
@@ -1704,6 +1951,7 @@ def build_data() -> dict:
     gsp_catalog = build_gsp_catalog(gsps, gwe_series, status_df, subsidence_by_gsp)
     intro_page = build_intro_page(gsp_catalog)
     takeaways_page = build_takeaways_page(gsp_catalog, manifest)
+    econometrics_page = build_econometrics_page(gsp_catalog)
     sources_page = build_sources_page()
 
     xmin, ymin, xmax, ymax = counties_gdf.total_bounds
@@ -1732,6 +1980,7 @@ def build_data() -> dict:
         "gsp_catalog": gsp_catalog,
         "intro_page": intro_page,
         "takeaways_page": takeaways_page,
+        "econometrics_page": econometrics_page,
         "sources_page": sources_page,
         "relationship_variables": build_relationship_variables(),
         "sgma_window": {"pre_year": 2016, "post_year": 2024, "baseline_note": "Pre-2016 = before SGMA enforcement; 2024 = latest data"},
@@ -1841,6 +2090,7 @@ def render_html() -> str:
       <button type="button" class="tab-btn" data-tab="close">Close view</button>
       <button type="button" class="tab-btn" data-tab="relationships">Variable relationships</button>
       <button type="button" class="tab-btn" data-tab="takeaways">Takeaways</button>
+      <button type="button" class="tab-btn" data-tab="analysis">Analysis</button>
       <button type="button" class="tab-btn" data-tab="sources">Sources</button>
     </div>
   </nav>
@@ -1882,7 +2132,7 @@ def render_html() -> str:
         <dl class="intro-glossary" id="intro-glossary"></dl>
       </section>
       <footer class="intro-footer">
-        <p><a href="#" class="intro-cta inline-cta" data-goto-tab="explorer">Open the Explorer →</a> for subsidence &amp; overdraft maps · <strong>Close view</strong> for GSP-by-GSP metrics · <strong>Takeaways</strong> for synthesis · <strong>Variable relationships</strong> for before/after comparisons.</p>
+        <p><a href="#" class="intro-cta inline-cta" data-goto-tab="explorer">Open the Explorer →</a> for subsidence &amp; overdraft maps · <strong>Close view</strong> for GSP-by-GSP metrics · <strong>Takeaways</strong> for synthesis · <strong>Analysis</strong> for GSP-level plots · <strong>Variable relationships</strong> for before/after comparisons.</p>
         <p class="intro-credit">Alexandra Beyret · ECON 30 · DWR InSAR · MNM wells · Land IQ · NASS · dry-well reporting</p>
       </footer>
     </div>
@@ -2095,6 +2345,20 @@ def render_html() -> str:
       <div id="takeaways-sections" class="takeaways-sections"></div>
       <footer class="intro-footer">
         <p>Explore the data: <a href="#" class="intro-cta inline-cta" data-goto-tab="close">Close view</a> for GSP metrics · <a href="#" class="intro-cta inline-cta" data-goto-tab="explorer">Explorer</a> for subsidence maps · <a href="#" class="intro-cta inline-cta" data-goto-tab="relationships">Variable relationships</a> for 2016→2024 comparisons.</p>
+      </footer>
+    </div>
+  </div>
+  <div id="tab-analysis" class="tab-panel">
+    <div class="intro-page analysis-page">
+      <header class="panel-header">
+        <h1>Statistical analysis</h1>
+        <p class="lede" id="analysis-lede"></p>
+        <p class="analysis-caveat" id="analysis-caveat"></p>
+      </header>
+      <div id="analysis-highlights" class="analysis-highlights"></div>
+      <div id="analysis-figures" class="analysis-figures"></div>
+      <footer class="intro-footer">
+        <p>See raw metrics: <a href="#" class="intro-cta inline-cta" data-goto-tab="close">Close view</a> · narrative synthesis: <a href="#" class="intro-cta inline-cta" data-goto-tab="takeaways">Takeaways</a> · pairwise charts: <a href="#" class="intro-cta inline-cta" data-goto-tab="relationships">Variable relationships</a>.</p>
       </footer>
     </div>
   </div>

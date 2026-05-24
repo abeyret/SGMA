@@ -43,6 +43,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
 #tab-home.active { display: block; overflow-y: auto; }
 #tab-close.active { display: block; overflow-y: auto; }
 #tab-takeaways.active { display: block; overflow-y: auto; }
+#tab-analysis.active { display: block; overflow-y: auto; }
 #map, #split-container, #compare-container {
   position: absolute; inset: 0;
 }
@@ -713,6 +714,57 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
 .takeaway-bullets { margin: 0; padding-left: 1.15rem; font-size: 0.84rem; line-height: 1.55; }
 .takeaway-bullets li { margin: 0.35rem 0; }
 .takeaway-explore { margin: 1rem 0 0; font-size: 0.78rem; }
+
+/* Analysis tab */
+.analysis-page { max-width: 920px; }
+.analysis-caveat {
+  margin: 0.75rem 0 0; padding: 0.65rem 0.85rem;
+  background: #fff8e6; border-left: 4px solid var(--accent);
+  font-size: 0.8rem; line-height: 1.45; color: var(--text);
+}
+.analysis-highlights {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem; margin: 1.25rem 0 0;
+}
+@media (max-width: 820px) {
+  .analysis-highlights { grid-template-columns: 1fr; }
+}
+.analysis-highlight {
+  background: var(--panel); border: 1px solid #c5d9dc; padding: 0.75rem 0.85rem;
+}
+.analysis-highlight .hl-label {
+  display: block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--teal); margin-bottom: 0.35rem;
+}
+.analysis-highlight .hl-text { font-size: 0.8rem; line-height: 1.45; margin: 0; }
+.analysis-figures {
+  display: flex; flex-direction: column; gap: 1.75rem; margin-top: 1.5rem;
+}
+.analysis-figure {
+  background: var(--panel); border: 1px solid #ddd;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden;
+}
+.analysis-figure-head {
+  display: flex; align-items: baseline; gap: 0.65rem; flex-wrap: wrap;
+  padding: 0.85rem 1rem 0.5rem; border-bottom: 1px solid #eee;
+}
+.analysis-figure-head h2 {
+  margin: 0; font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; flex: 1;
+}
+.analysis-figure-tag {
+  font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: #fff; background: var(--teal);
+  padding: 0.2rem 0.45rem; border-radius: 2px;
+}
+.analysis-figure img {
+  display: block; width: 100%; height: auto; background: #fafafa;
+}
+.analysis-figure figcaption {
+  padding: 0.75rem 1rem 1rem; font-size: 0.8rem; line-height: 1.5; color: var(--text);
+}
+.analysis-methods {
+  font-size: 0.68rem; color: var(--muted); font-style: italic; margin: 0 0 0.75rem;
+}
 
 .close-determination-block {
   background: #f8f9fa; border-left: 4px solid var(--teal);

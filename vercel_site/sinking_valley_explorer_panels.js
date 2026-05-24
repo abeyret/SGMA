@@ -352,6 +352,42 @@
     }
   }
 
+  function renderAnalysisPage() {
+    const page = DATA.econometrics_page;
+    if (!page) return;
+    const ledeEl = document.getElementById("analysis-lede");
+    const caveatEl = document.getElementById("analysis-caveat");
+    const highlightsEl = document.getElementById("analysis-highlights");
+    const figuresEl = document.getElementById("analysis-figures");
+    if (ledeEl) ledeEl.textContent = page.lede || "";
+    if (caveatEl) caveatEl.textContent = page.caveat || "";
+    if (highlightsEl) {
+      highlightsEl.innerHTML = (page.highlights || []).map((h) => `
+        <div class="analysis-highlight">
+          <span class="hl-label">${h.label || ""}</span>
+          <p class="hl-text">${h.text || ""}</p>
+        </div>`).join("");
+      highlightsEl.hidden = !(page.highlights || []).length;
+    }
+    if (figuresEl) {
+      figuresEl.innerHTML = (page.figures || []).map((f) => `
+        <figure class="analysis-figure" id="analysis-${f.id || ""}">
+          <div class="analysis-figure-head">
+            <h2>${f.title || ""}</h2>
+            ${f.tag ? `<span class="analysis-figure-tag">${f.tag}</span>` : ""}
+          </div>
+          <img src="${f.src}" alt="${f.title || "Analysis chart"}" loading="lazy"/>
+          <figcaption>${f.caption || ""}</figcaption>
+        </figure>`).join("");
+    }
+    document.querySelectorAll("#tab-analysis [data-goto-tab]").forEach((el) => {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        switchTab(el.dataset.gotoTab);
+      });
+    });
+  }
+
   function renderTakeawaysPage() {
     const page = DATA.takeaways_page;
     if (!page) return;
@@ -853,6 +889,7 @@
     initTabs();
     renderIntroPage();
     renderTakeawaysPage();
+    renderAnalysisPage();
     renderSourcesPage();
     populateCloseSelect();
     populateRelSelect();
