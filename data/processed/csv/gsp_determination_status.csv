@@ -1,0 +1,45 @@
+gsp_id,GSP_Name,GSA_Name,basin_id,basin_name,status_raw,status_std,is_complete,is_incomplete,is_inadequate,is_under_review,in_state_intervention,date_posted,date_determination,governance_quality_index
+13,,,5-022,SAN JOAQUIN VALLEY,Correspondence - Post State Intervention,state_intervention,False,False,False,False,False,2020-01-31,,0.5
+14,,,5-022,SAN JOAQUIN VALLEY,Correspondence - Post State Intervention,state_intervention,False,False,False,False,False,2020-01-31,,0.5
+145,,,5-022,SAN JOAQUIN VALLEY,Inadequate,inadequate,True,False,False,False,False,2022-04-08,,1.0
+21,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-10-09,,0.5
+22,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-01-31,,0.5
+25,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-01-31,,0.5
+26,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-01-31,,0.5
+28,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-01-31,,0.5
+61,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-10-09,,0.5
+65,,,5-022,SAN JOAQUIN VALLEY,Inadequate,inadequate,True,False,False,False,False,2020-02-19,,1.0
+164,,,5-022,SAN JOAQUIN VALLEY,Inadequate - Under Review,inadequate_under_review,True,False,False,False,False,2026-01-14,,1.0
+165,,,5-022,SAN JOAQUIN VALLEY,Inadequate - Under Review,inadequate_under_review,True,False,False,False,False,2026-01-14,,1.0
+166,,,5-022,SAN JOAQUIN VALLEY,Inadequate - Under Review,inadequate_under_review,True,False,False,False,False,2026-01-14,,1.0
+167,,,5-022,SAN JOAQUIN VALLEY,Inadequate - Under Review,inadequate_under_review,True,False,False,False,False,2026-02-04,,1.0
+168,,,5-022,SAN JOAQUIN VALLEY,Inadequate - Under Review,inadequate_under_review,True,False,False,False,False,2026-02-04,,1.0
+169,,,5-022,SAN JOAQUIN VALLEY,Inadequate - Under Review,inadequate_under_review,True,False,False,False,False,2026-02-04,,1.0
+170,,,5-022,SAN JOAQUIN VALLEY,Inadequate - Under Review,inadequate_under_review,True,False,False,False,False,2026-02-04,,1.0
+171,,,5-022,SAN JOAQUIN VALLEY,Inadequate - Under Review,inadequate_under_review,True,False,False,False,False,2026-02-04,,1.0
+172,,,5-022,SAN JOAQUIN VALLEY,Inadequate - Under Review,inadequate_under_review,True,False,False,False,False,2026-02-04,,1.0
+173,,,5-022,SAN JOAQUIN VALLEY,Inadequate - Under Review,inadequate_under_review,True,False,False,False,False,2026-02-04,,1.0
+8,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-01-31,,0.5
+49,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-10-09,,0.5
+122,,,5-022,SAN JOAQUIN VALLEY,Approved,approved,True,False,False,False,False,2022-02-07,,1.0
+160,,,5-022,SAN JOAQUIN VALLEY,Inadequate - Under Review,inadequate_under_review,True,False,False,False,False,2025-07-15,,1.0
+7,,,5-022,SAN JOAQUIN VALLEY,Correspondence - Post State Intervention,state_intervention,False,False,False,False,False,2020-01-31,,0.5
+9,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-01-31,,0.5
+23,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-01-31,,0.5
+24,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-01-31,,0.5
+38,,,5-022,SAN JOAQUIN VALLEY,Correspondence - Post State Intervention,state_intervention,False,False,False,False,False,2020-01-31,,0.5
+42,,,5-022,SAN JOAQUIN VALLEY,Inadequate,inadequate,True,False,False,False,False,2020-01-31,,1.0
+43,,,5-022,SAN JOAQUIN VALLEY,Inadequate,inadequate,True,False,False,False,False,2020-02-19,,1.0
+45,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-10-09,,0.5
+63,,,5-022,SAN JOAQUIN VALLEY,Inadequate,inadequate,True,False,False,False,False,2020-02-19,,1.0
+110,,,5-022,SAN JOAQUIN VALLEY,Approved,approved,True,False,False,False,False,2022-02-07,,1.0
+123,,,5-022,SAN JOAQUIN VALLEY,Approved,approved,True,False,False,False,False,2022-02-14,,1.0
+15,,,5-022,SAN JOAQUIN VALLEY,Correspondence - Post State Intervention,state_intervention,False,False,False,False,False,2020-01-31,,0.5
+20,,,5-022,SAN JOAQUIN VALLEY,Correspondence - Post State Intervention,state_intervention,False,False,False,False,False,2020-01-31,,0.5
+31,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-01-31,,0.5
+47,,,5-022,SAN JOAQUIN VALLEY,Under Periodic Review,under_review,False,False,False,True,False,2020-01-31,,0.5
+48,,,5-022,SAN JOAQUIN VALLEY,Inadequate,inadequate,True,False,False,False,False,2020-02-19,,1.0
+56,,,5-022,SAN JOAQUIN VALLEY,Inadequate,inadequate,True,False,False,False,False,2020-02-19,,1.0
+57,,,5-022,SAN JOAQUIN VALLEY,Inadequate,inadequate,True,False,False,False,False,2020-02-19,,1.0
+85,,,5-022,SAN JOAQUIN VALLEY,Approved,approved,True,False,False,False,False,2022-02-14,,1.0
+120,,,5-022,SAN JOAQUIN VALLEY,Approved,approved,True,False,False,False,False,2022-02-07,,1.0

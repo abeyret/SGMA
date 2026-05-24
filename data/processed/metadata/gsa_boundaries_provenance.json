@@ -1,0 +1,8 @@
+{
+  "dataset_id": "gsa_boundaries",
+  "source_url": "https://gis.water.ca.gov/arcgis/rest/services/Boundaries/i03_Groundwater_Sustainability_Agencies/FeatureServer/0",
+  "local_path": "C:\\Users\\alexa\\OneDrive\\Desktop\\SGMA-ECON30\\data\\raw\\boundaries\\gsa_boundaries.geojson",
+  "retrieved_at_utc": "2026-05-24T00:21:38.313938+00:00",
+  "sha256": "b3afebf5215d3b42469190be72e05d0966f6748c833a5a417940ad8081ab0288",
+  "notes": ""
+}

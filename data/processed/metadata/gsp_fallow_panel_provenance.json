@@ -1,0 +1,8 @@
+{
+  "dataset_id": "gsp_fallow_panel",
+  "source_url": "C:\\Users\\alexa\\OneDrive\\Desktop\\SGMA-ECON30\\sjv_gsp_fallow_by_year.csv",
+  "local_path": "C:\\Users\\alexa\\OneDrive\\Desktop\\SGMA-ECON30\\sjv_gsp_fallow_by_year.csv",
+  "retrieved_at_utc": "2026-05-24T00:38:09.533147+00:00",
+  "sha256": "03999caa1d39cef896245b83d6458643ccbf3d256aeddf6c7bf0fa69dbde79cb",
+  "notes": "Land IQ / DWR GSP land use survey."
+}

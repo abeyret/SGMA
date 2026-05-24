@@ -1,0 +1,8 @@
+{
+  "dataset_id": "bulletin118_subbasins",
+  "source_url": "https://gis.data.cnra.ca.gov/api/download/v1/items/f09a3e95ef534f77a2e686234f00c498/geojson?layers=0",
+  "local_path": "C:\\Users\\alexa\\OneDrive\\Desktop\\SGMA-ECON30\\data\\raw\\boundaries\\bulletin118_subbasins.geojson",
+  "retrieved_at_utc": "2026-05-24T00:21:26.231161+00:00",
+  "sha256": "6a3786bb9adcad034202c83f136b2f3487df53044a09e9fbddc2487d296807f3",
+  "notes": ""
+}

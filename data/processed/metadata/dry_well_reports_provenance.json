@@ -1,0 +1,8 @@
+{
+  "dataset_id": "dry_well_reports",
+  "source_url": "https://mydrywell.water.ca.gov/report/",
+  "local_path": "C:\\Users\\alexa\\OneDrive\\Desktop\\SGMA-ECON30\\householdwatersupplyshortagereportingsystemdata (3).csv",
+  "retrieved_at_utc": "2026-05-24T00:45:31.327138+00:00",
+  "sha256": "2d8bc08ae7668f1a69ff77101534e2421953dee2d7cf852cf884c8de6c11a141",
+  "notes": "Volunteer reporting; under-representative per DWR metadata."
+}

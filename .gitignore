@@ -28,5 +28,25 @@ data/clean/_cache_external/
 data/clean/_cache_cb_*.zip
 _cache_sjv_gsp/
 
-# Optional: uncomment if well-failure CSV is too large for GitHub
-# householdwatersupply*.csv
+# InSAR point zip (~4.8 GB) — use data/processed/csv/subsidence_by_gsp_year.csv instead
+data/raw/subsidence/*.zip
+
+# Not part of the public website
+*.pptx
+Copy of *.pptx
+sgma_research/
+householdwatersupply*.csv
+outputs/
+ECON30_Thesis_Presentation.pptx
+
+# Optional legacy / other sites (not deployed)
+vercel_site/sgma_briefing.*
+vercel_site/sgma_equity_slideshow.*
+vercel_site/thesis_presentation.*
+vercel_site/sinking_valley.html
+vercel_site/sinking_valley.js
+vercel_site/sinking_valley.css
+vercel_site/sinking_valley_data.json
+vercel_site/atlas_*
+vercel_site/index_slides_legacy.html
+vercel_site/assets/c__Users_alexa_*

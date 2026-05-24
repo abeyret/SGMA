@@ -1,0 +1,8 @@
+{
+  "dataset_id": "gsp_plan_areas",
+  "source_url": "https://gis.water.ca.gov/arcgis/rest/services/Boundaries/i03_Groundwater_Sustainability_Plan_Areas/FeatureServer/0",
+  "local_path": "C:\\Users\\alexa\\OneDrive\\Desktop\\SGMA-ECON30\\data\\raw\\boundaries\\gsp_plan_areas.geojson",
+  "retrieved_at_utc": "2026-05-24T00:21:45.814539+00:00",
+  "sha256": "d0d72bfd8b1cf0d2d3c521f257c4029d9d843a1f2fcd41a4ff2a8adc56889f75",
+  "notes": ""
+}

@@ -1,0 +1,8 @@
+{
+  "dataset_id": "gsp_determination_status",
+  "source_url": "https://sgma.water.ca.gov/portal/gsp/all",
+  "local_path": "C:\\Users\\alexa\\OneDrive\\Desktop\\SGMA-ECON30\\sjv_gsp_status.csv",
+  "retrieved_at_utc": "2026-05-24T00:45:37.650632+00:00",
+  "sha256": "3a11a6ba9c10255cc51235bfa36021726acbd9f7c386a29782267a9895ebc300",
+  "notes": "Snapshot CSV; refresh from DWR SGMA portal for longitudinal status changes."
+}

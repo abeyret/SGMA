@@ -1264,26 +1264,121 @@ def render_html(payload: dict) -> str:
     .intro {{
       min-height: 100vh;
       display:flex; flex-direction:column;
-      padding: 24px 16px;
+      padding: 0;
       background:
         radial-gradient(1200px 600px at 20% 10%, rgba(107,63,42,0.14), transparent 55%),
         radial-gradient(900px 500px at 85% 20%, rgba(42,26,18,0.10), transparent 60%),
         linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.00));
     }}
-    .intro .wrap {{ max-width: 980px; width:100%; margin: 0 auto; }}
+    .intro .wrap {{ max-width: 100%; width:100%; margin: 0 auto; }}
     .snap {{
-      height: calc(100vh - 48px);
+      height: 100vh;
       display:flex; align-items:center;
+      position: relative;
+      overflow: hidden;
+      border-radius: 0;
+      --fade: 0.0;
     }}
-    .snap .card {{
-      width:100%;
-      border:1px solid rgba(42,26,18,0.14);
-      border-radius: 22px;
-      background: rgba(255,255,255,0.74);
-      box-shadow: 0 16px 40px rgba(42,26,18,0.12);
-      padding: 22px 20px;
+    .snap::before {{
+      content: '';
+      position:absolute; inset:0;
+      background-size: cover;
+      background-position: center;
+      filter: saturate(1.05) contrast(1.05);
+      transform: scale(1.02);
+      opacity: calc(0.25 + 0.75 * var(--fade));
+      transition: opacity 800ms ease;
     }}
-    .intro h1 {{ margin:0; font-size:2.0rem; letter-spacing:-0.02em; line-height:1.05; }}
+    .snap::after {{
+      content: '';
+      position:absolute; inset:0;
+      background:
+        linear-gradient(90deg, rgba(42,26,18,0.70), rgba(42,26,18,0.35) 45%, rgba(42,26,18,0.15)),
+        radial-gradient(900px 600px at 30% 40%, rgba(42,26,18,0.35), transparent 60%);
+      pointer-events:none;
+      opacity: calc(0.25 + 0.75 * var(--fade));
+      transition: opacity 800ms ease;
+    }}
+    .snap.bg-1::before {{ background-image: url('assets/intro_slide1.png'); }}
+    .snap.bg-2::before {{ background-image: url('assets/intro_slide2.png'); }}
+    .snap.bg-3::before {{ background-image: url('assets/intro_slide3.png'); }}
+    .snap.bg-4::before {{ background-image: url('assets/intro_slide4.png'); }}
+    .introHeaderBar {{
+      position: absolute;
+      top: 14px;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      padding: 0 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      color: rgba(255,255,255,0.88);
+      text-shadow: 0 2px 14px rgba(0,0,0,0.35);
+      letter-spacing: 0.01em;
+    }}
+    .introHeaderBar .title {{
+      font-weight: 500;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70vw;
+    }}
+    .introHeaderBar .name {{
+      font-weight: 500;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      margin-left: 12px;
+    }}
+    /* Caption-only layout: keep images unobstructed */
+    .caption {{
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      z-index: 2;
+      width: min(720px, calc(100vw - 36px));
+      padding: 16px 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.22);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.22);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }}
+    .caption .kicker {{ color: rgba(255,255,255,0.86); }}
+    .caption h1 {{
+      margin: 0;
+      font-size: clamp(1.7rem, 3.2vw, 2.35rem);
+      letter-spacing: -0.02em;
+      line-height: 1.03;
+      color: rgba(255,255,255,0.98);
+      text-shadow: 0 2px 16px rgba(0,0,0,0.35);
+    }}
+    .caption p {{
+      margin: 10px 0 0 0;
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.88);
+      line-height: 1.35;
+      max-width: 56ch;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.30);
+    }}
+    .scrollHint {{ margin-top: 12px; font-size:0.92rem; color:rgba(255,255,255,0.78); }}
+
+    /* Fade-in/out between story panels (caption only) */
+    .caption {{
+      opacity: 0.12;
+      transform: translateY(10px);
+      transition: opacity 800ms ease, transform 800ms ease;
+      will-change: opacity, transform;
+    }}
+    .snap.is-active .caption {{
+      opacity: 1;
+      transform: translateY(0);
+    }}
+
+    .intro h1 {{ margin:0; font-size:2.15rem; letter-spacing:-0.02em; line-height:1.05; text-shadow: 0 1px 0 rgba(255,255,255,0.35); }}
     .intro p {{ margin:10px 0 0 0; font-size:1.06rem; color:rgba(42,26,18,0.82); line-height:1.35; }}
     .kicker {{
       display:inline-flex; align-items:center; gap:10px;
@@ -1291,7 +1386,7 @@ def render_html(payload: dict) -> str:
       color: rgba(42,26,18,0.75);
       margin-bottom: 12px;
     }}
-    .scrollHint {{ margin-top: 14px; font-size:0.9rem; color:rgba(42,26,18,0.70); }}
+    /* (slide scroll hint style overridden above for captions) */
     .introGrid {{
       display:grid; grid-template-columns: 1fr; gap: 12px; margin-top: 14px;
     }}
@@ -1311,6 +1406,31 @@ def render_html(payload: dict) -> str:
       margin: 14px 0;
     }}
 
+    /* Post-intro explainer (light, readable) */
+    .explainer {{
+      padding: 18px 16px 8px 16px;
+      background:
+        radial-gradient(900px 520px at 20% 0%, rgba(107,63,42,0.10), transparent 60%),
+        linear-gradient(180deg, rgba(246,240,230,0.92), rgba(246,240,230,1.0));
+      border-top: 1px solid rgba(42,26,18,0.10);
+      border-bottom: 1px solid rgba(42,26,18,0.10);
+    }}
+    .explainer .wrap {{ max-width: 980px; margin: 0 auto; }}
+    .explainer h2 {{ margin:0; font-size:1.15rem; font-weight:900; letter-spacing:-0.01em; }}
+    .explainer p {{ margin:8px 0 0 0; color: rgba(42,26,18,0.78); max-width: 80ch; }}
+    .explainer .grid {{ margin-top: 12px; grid-template-columns: 1fr 1fr 1fr; }}
+    @media (max-width: 980px) {{
+      .explainer .grid {{ grid-template-columns: 1fr; }}
+    }}
+
+    .sectionBar {{
+      height: 28px;
+      background: rgba(255,255,255,0.75);
+      border-top: 1px solid rgba(42,26,18,0.08);
+      border-bottom: 1px solid rgba(42,26,18,0.08);
+      box-shadow: 0 10px 24px rgba(42,26,18,0.10);
+    }}
+
     .app {{ height:100%; display:flex; flex-direction:column; }}
     .top {{
       padding:14px 16px; border-bottom:1px solid rgba(42,26,18,0.12);
@@ -1328,8 +1448,9 @@ def render_html(payload: dict) -> str:
     .panel {{ border:1px solid rgba(42,26,18,0.14); border-radius:14px; box-shadow: 0 6px 18px rgba(42,26,18,0.08); background:rgba(255,255,255,0.78); backdrop-filter: blur(2px); display:flex; flex-direction:column; min-height:0; }}
     .hdr {{ padding:12px; border-bottom:1px solid rgba(42,26,18,0.08); display:flex; align-items:center; justify-content:space-between; gap:10px; }}
     .hdr h2 {{ margin:0; font-size:0.92rem; font-weight:800; }}
-    .body {{ padding:12px; min-height:0; flex:1; }}
-    #map {{ height: 360px; width:100%; border-radius:10px; }}
+    .body {{ padding:12px; min-height:0; flex:1; display:flex; flex-direction:column; gap:10px; }}
+    /* Let map/scatter fill available panel height (reduces bottom whitespace on tall screens) */
+    #map {{ flex:1; min-height:360px; width:100%; border-radius:10px; }}
     .legend {{
       position: absolute; right: 18px; bottom: 18px; z-index: 800;
       background: rgba(255,255,255,0.90); border: 1px solid rgba(42,26,18,0.18);
@@ -1351,7 +1472,7 @@ def render_html(payload: dict) -> str:
     select {{
       font-size:0.82rem; padding:8px 10px; border-radius:12px; border:1px solid rgba(42,26,18,0.22); background:rgba(255,255,255,0.75); min-width: 320px;
     }}
-    #chartWrap {{ height: 440px; }}
+    #chartWrap {{ flex:1; min-height:440px; }}
     #chart {{ width:100% !important; height:100% !important; }}
     .grid {{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }}
     .stat {{ border:1px solid rgba(42,26,18,0.10); border-radius:12px; padding:10px; background:rgba(255,255,255,0.55); }}
@@ -1365,8 +1486,12 @@ def render_html(payload: dict) -> str:
 
 <div class="intro" id="top">
   <div class="wrap">
-    <section class="snap">
-      <div class="card">
+    <section class="snap bg-1">
+      <div class="introHeaderBar" aria-hidden="true">
+        <div class="title">SGMA Equity Atlas — San Joaquin Valley</div>
+        <div class="name">Alexandra Beyret</div>
+      </div>
+      <div class="caption">
         <div class="kicker">San Joaquin Valley • Subsidence</div>
         <h1>The San Joaquin Central Valley is sinking at record-breaking rates.</h1>
         <p class="muted">Scroll to see the stakes, then explore what changed after SGMA.</p>
@@ -1374,8 +1499,8 @@ def render_html(payload: dict) -> str:
       </div>
     </section>
 
-    <section class="snap">
-      <div class="card">
+    <section class="snap bg-2">
+      <div class="caption">
         <div class="kicker">Overextraction</div>
         <h1>Some regions have seen subsidence rates above 30 cm/yr.</h1>
         <p>In many places, groundwater pumping has outpaced recharge—leading to land sinking, infrastructure damage, and higher costs for communities.</p>
@@ -1383,8 +1508,8 @@ def render_html(payload: dict) -> str:
       </div>
     </section>
 
-    <section class="snap">
-      <div class="card">
+    <section class="snap bg-3">
+      <div class="caption">
         <div class="kicker">Policy response</div>
         <h1>Since 2014, SGMA has been trying to bring groundwater use into balance.</h1>
         <p class="muted">Implementation is uneven: some plan areas are further along (approved/adequate) while others remain incomplete or under review.</p>
@@ -1392,31 +1517,51 @@ def render_html(payload: dict) -> str:
       </div>
     </section>
 
-    <section class="snap">
-      <div class="card">
+    <section class="snap bg-4">
+      <div class="caption">
         <div class="kicker">Equity question</div>
         <h1>Will SGMA stop record-breaking subsidence—or shift costs onto small farmers?</h1>
         <p>Press the button below to explore how regions in the SJV changed since SGMA implementation.</p>
         <div class="introActions">
           <a class="btn" href="#atlas" id="goAtlas">Press here to explore the atlas</a>
-          <a class="btn secondary" href="#atlas" onclick="document.getElementById('atlas').scrollIntoView({{behavior:'smooth'}}); return false;">Jump to map</a>
-        </div>
-        <div class="divider"></div>
-        <div class="introGrid">
-          <div class="mini"><b>Left:</b> Map of counties + GSA outline. Toggle <b>GSP</b> to view plan areas and regulation progress.</div>
-          <div class="mini"><b>Middle:</b> Comparison scatter (county mode) or <b>subbasin scatter</b> (GSP mode) to test “mechanism” stories.</div>
-          <div class="mini"><b>Right:</b> Click a county (or a GSP) to see <b>Pre / Post / Δ</b> (or <b>Pre approval / Post approval / Δ</b>).</div>
         </div>
       </div>
     </section>
   </div>
 </div>
 
+<div class="explainer" id="howto">
+  <div class="wrap">
+    <div class="kicker">How to read the atlas</div>
+    <h2>Orient yourself, then click regions to compare change.</h2>
+    <p>SGMA implementation is still in progress: some plan areas are approved/adequate while others remain incomplete or under review. Use the map and scatter to compare patterns, then click a county or GSP to see Pre, Post, and Change (Δ).</p>
+    <div class="grid" style="margin-top:12px;">
+      <div class="stat">
+        <div class="k">Left: Map</div>
+        <div class="v">Counties + GSA outline</div>
+        <div class="sub">Turn on <b>Show GSP status</b> to view plan areas; click shapes to select.</div>
+      </div>
+      <div class="stat">
+        <div class="k">Middle: Scatter</div>
+        <div class="v">Compare regions</div>
+        <div class="sub">County mode tests mechanism stories; GSP mode uses a <b>subbasin</b> scatter and highlights matching plan areas.</div>
+      </div>
+      <div class="stat">
+        <div class="k">Right: Details</div>
+        <div class="v">Pre / Post / Δ</div>
+        <div class="sub">County: pre-/post-SGMA. GSP: pre-/post-approval (if approved/adequate), otherwise no-change.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sectionBar" aria-hidden="true"></div>
+
 <div class="app" id="atlas">
   <div class="top">
     <div>
       <h1>SGMA Equity Pathways — San Joaquin Valley</h1>
-      <p>Orientation: left map (counties + GSA outline; toggle GSP for plan areas). Middle compares regions. Right shows selected county/GSP metrics for Pre, Post, and Change (Δ).</p>
+      <p>Map + scatter let you compare counties, GSPs, and subbasins. Click shapes on the map (or points on the scatter) to update the details card.</p>
     </div>
     <div class="toggles" role="group" aria-label="Period toggle">
       <button id="btn-pre" class="active" type="button">Pre-SGMA</button>
@@ -1464,7 +1609,7 @@ def render_html(payload: dict) -> str:
           <option value="v5">Equity context: CalEnviroScreen vs well failures (Pre)</option>
         </select>
       </div>
-      <div class="body" style="padding:10px 12px;">
+      <div class="body" style="padding:10px 12px; display:flex; flex-direction:column; gap:10px;">
         <div id="chartWrap"><canvas id="chart"></canvas></div>
         <div class="note" id="chartNote"></div>
       </div>
@@ -1619,12 +1764,15 @@ function parseISO(s) {{
   return isNaN(d.getTime()) ? null : d;
 }}
 function statusHue(status) {{
-  const s = (status || '').toLowerCase();
-  // requested: red if inadequate/incomplete; green if approved/adequate
-  if (s.includes('inadequate') || s.includes('incomplete')) return 0;   // red
-  if (s.includes('approved') || s.includes('adequate')) return 120;     // green
-  if (s.includes('review')) return 45;                                  // amber
-  return 210;                                                           // blue/other
+  const s = (status || '').trim().toLowerCase();
+  if (!s || s === 'nan') return 210;
+  if (/\\bnot\\s+approved\\b/.test(s) || s.includes('withdrawn')) return 0;
+  if (s.includes('inadequate') || s.includes('incomplete')) return 0;
+  if (s.includes('conditionally')) return 45;
+  if (/\\bunder\\s+review\\b|\\bin\\s+review\\b/.test(s)) return 45;
+  if (/\\bapproved\\b/.test(s) || /\\badequate\\b/.test(s)) return 120;
+  if (/\\breview\\b/.test(s)) return 45;
+  return 210;
 }}
 
 function statusFill(status) {{
@@ -1685,8 +1833,10 @@ function setSelectedSubbasin(subName) {{
 }}
 
 function isApprovedOrAdequate(status) {{
-  const s = (status || '').toLowerCase();
-  return (s.includes('approved') || s.includes('adequate'));
+  const s = (status || '').trim().toLowerCase();
+  if (!s || /\\bnot\\s+approved\\b/.test(s)) return false;
+  if (s.includes('inadequate') || s.includes('incomplete')) return false;
+  return (/\\bapproved\\b/.test(s) || /\\badequate\\b/.test(s));
 }}
 
 function updatePanels() {{
@@ -2183,6 +2333,45 @@ setPeriod('pre');
 refreshMap();
 updatePanels();
 makeLegendDraggable();
+
+// Intro: smooth fade between story panels
+(() => {{
+  const snaps = Array.from(document.querySelectorAll('.intro .snap'));
+  if (!snaps.length) return;
+
+  // Prefer smooth scrolling for the CTA
+  const go = document.getElementById('goAtlas');
+  if (go) {{
+    go.addEventListener('click', (e) => {{
+      const el = document.getElementById('atlas');
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({{ behavior: 'smooth' }});
+    }});
+  }}
+
+  const thresholds = [];
+  for (let i = 0; i <= 40; i++) thresholds.push(i / 40);
+
+  const io = new IntersectionObserver((entries) => {{
+    for (const ent of entries) {{
+      const s = ent.target;
+      const ratio = ent.intersectionRatio || 0;
+      // active if mostly on screen; otherwise gently fade
+      s.classList.toggle('is-active', ratio > 0.55);
+      const cap = s.querySelector('.caption');
+      if (cap) {{
+        const op = Math.max(0.02, Math.min(1, ratio * 1.35));
+        s.style.setProperty('--fade', String(op));
+        cap.style.opacity = String(op);
+        const y = Math.round((1 - op) * 10);
+        cap.style.transform = 'translateY(' + y + 'px)';
+      }}
+    }}
+  }}, {{ threshold: thresholds }});
+
+  snaps.forEach(s => io.observe(s));
+}})();
 </script>
 </body>
 </html>

@@ -1,0 +1,8 @@
+{
+  "dataset_id": "insar_vertical_displacement",
+  "source_url": "https://data.cnra.ca.gov/dataset/5e2d49e1-9ed0-425e-9f3e-2cda4a213c26/resource/6e855ae7-f365-4d40-984f-3c016b54f69d/download/verticaldisplacementpointdata.zip",
+  "local_path": "C:\\Users\\alexa\\OneDrive\\Desktop\\SGMA-ECON30\\data\\raw\\subsidence\\verticaldisplacementpointdata.zip",
+  "retrieved_at_utc": "2026-05-24T00:45:09.377075+00:00",
+  "sha256": "020d1644387c5d3a27643ffedadef969755d6a0204e8ec221d47bd76a48d0dc8",
+  "notes": ""
+}

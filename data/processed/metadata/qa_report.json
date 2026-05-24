@@ -1,0 +1,89 @@
+[
+  {
+    "type": "topology",
+    "layer": "subbasins",
+    "n_features": 18,
+    "invalid_geometries": 0,
+    "overlap_pairs": 4,
+    "total_area_km2": 35523.98421783738,
+    "notes": []
+  },
+  {
+    "type": "topology",
+    "layer": "gsas",
+    "n_features": 132,
+    "invalid_geometries": 21,
+    "overlap_pairs": 201,
+    "total_area_km2": 35092.39388984786,
+    "notes": [
+      "Invalid at 37: Ring Self-intersection[-26272.9603150212 -77742.0402463675]",
+      "Invalid at 43: Ring Self-intersection[16828.5562345862 -124623.818303849]",
+      "Invalid at 53: Ring Self-intersection[-43678.2001150798 -100305.955259572]",
+      "Invalid at 89: Ring Self-intersection[-115123.168040697 -45268.9431585269]",
+      "Invalid at 100: Ring Self-intersection[83130.5395103225 -263042.900202518]",
+      "Invalid at 101: Ring Self-intersection[-33349.3946758065 -210133.965177787]",
+      "Invalid at 135: Ring Self-intersection[-32625.5035463042 -141172.20835356]",
+      "Invalid at 158: Ring Self-intersection[-86037.6793014621 -98145.1905271555]",
+      "Invalid at 168: Ring Self-intersection[-76422.1517369986 -19148.1353536635]",
+      "Invalid at 182: Ring Self-intersection[-40652.7741405341 -121404.904853576]",
+      "Invalid at 214: Ring Self-intersection[-118018.523313777 11880.9262688104]",
+      "Invalid at 283: Ring Self-intersection[42775.1699572212 -150965.606063086]",
+      "Invalid at 294: Ring Self-intersection[67899.0787930287 -331896.111907447]",
+      "Invalid at 301: Ring Self-intersection[81495.2949618426 -256631.917367258]",
+      "Invalid at 304: Ring Self-intersection[78826.363564795 -251581.24255209]",
+      "Invalid at 325: Ring Self-intersection[27663.3688629121 -267551.501413378]",
+      "Invalid at 326: Ring Self-intersection[45869.8794459129 -318276.545722815]",
+      "Invalid at 332: Ring Self-intersection[88017.7011812839 -223223.156585469]",
+      "Invalid at 333: Ring Self-intersection[84785.213430497 -279301.561281613]",
+      "Invalid at 334: Ring Self-intersection[88028.9778945295 -221599.43592898]",
+      "Invalid at 354: Ring Self-intersection[90142.8291984861 -219551.650048716]"
+    ]
+  },
+  {
+    "type": "topology",
+    "layer": "gsps",
+    "n_features": 45,
+    "invalid_geometries": 9,
+    "overlap_pairs": 83,
+    "total_area_km2": 35091.02712205256,
+    "notes": [
+      "Invalid at 0: Ring Self-intersection[-91271.9996086089 -60929.583163369]",
+      "Invalid at 14: Ring Self-intersection[42774.0387177508 -150965.050794054]",
+      "Invalid at 42: Ring Self-intersection[78826.363564795 -251581.24255209]",
+      "Invalid at 45: Ring Self-intersection[27663.3688629121 -267551.501413378]",
+      "Invalid at 56: Ring Self-intersection[-123068.838079398 -33082.8193159937]",
+      "Invalid at 70: Ring Self-intersection[-70413.3312268908 -103249.262592772]",
+      "Invalid at 71: Ring Self-intersection[35915.5433124316 -245382.100063623]",
+      "Invalid at 73: Ring Self-intersection[16828.5562345862 -124623.818303849]",
+      "Invalid at 96: Ring Self-intersection[-40078.6995125446 -121023.53961511]"
+    ]
+  },
+  {
+    "type": "panel",
+    "n_rows": 1716,
+    "n_gsa": 132,
+    "year_range": [
+      2012,
+      2024
+    ],
+    "missingness_pct": {
+      "GSP_Name": 100.0,
+      "GSA_Name": 100.0,
+      "basin_id": 1.5151515151515151,
+      "basin_name": 1.5151515151515151,
+      "status_raw": 1.5151515151515151,
+      "status_std": 1.5151515151515151,
+      "is_complete": 1.5151515151515151,
+      "is_incomplete": 1.5151515151515151,
+      "is_inadequate": 1.5151515151515151,
+      "is_under_review": 1.5151515151515151,
+      "in_state_intervention": 1.5151515151515151,
+      "date_posted": 1.5151515151515151,
+      "date_determination": 100.0,
+      "governance_quality_index": 1.5151515151515151,
+      "fallow_acres": 39.39393939393939,
+      "fallow_pct": 39.39393939393939
+    },
+    "duplicate_keys": 0
+  }
+]
