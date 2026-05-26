@@ -348,7 +348,10 @@
     if (introEl) introEl.textContent = page.intro || "";
     if (listEl) {
       listEl.innerHTML = (page.items || []).map((item) => `
-        <li><a href="${item.url}" target="_blank" rel="noopener">${item.label}</a></li>`).join("");
+        <li class="sources-item">
+          <a href="${item.url}" target="_blank" rel="noopener noreferrer">${item.label}</a>
+          ${item.description ? `<p class="sources-desc">${item.description}</p>` : ""}
+        </li>`).join("");
     }
   }
 
@@ -505,7 +508,9 @@
       const lowerBetter = vdef ? vdef.lower_better : ["gwe_cumulative_drop", "gwe_trend_4yr_ft_yr", "gwe_trend_ft_yr", "gwe_trend_5yr_ft_yr", "well_reports", "large_farm_share"].includes(k);
       let deltaClass = "neutral";
       if (d != null && d !== 0) {
-        if (isTrendKey(k)) {
+        if (k === "fallow_pct") {
+          deltaClass = d > 0 ? "bad" : "good";
+        } else if (isTrendKey(k)) {
           deltaClass = trendDeltaClass(a0, b, d);
         } else {
           const improved = lowerBetter ? d < 0 : d > 0;

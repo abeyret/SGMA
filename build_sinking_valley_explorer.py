@@ -1740,55 +1740,83 @@ def build_econometrics_page(gsp_catalog: list[dict]) -> dict:
 
 def build_sources_page() -> dict:
     return {
-        "intro": "Data and references for the Sinking Valley Explorer (ECON 30).",
+        "intro": (
+            "Official datasets behind the Explorer maps, Close view metrics, and Analysis tab. "
+            "Photo and quote sources on the Home page are omitted here."
+        ),
         "items": [
             {
-                "label": "DWR TRE Altamira InSAR — valley subsidence layers",
+                "label": "DWR InSAR land subsidence (TRE Altamira)",
+                "url": "https://data.cnra.ca.gov/dataset/5e2d49e1-9ed0-425e-9f3e-2cda4a213c26",
+                "description": (
+                    "Satellite radar measures vertical land-surface movement. Powers subsidence rate layers "
+                    "on the Explorer map and per-GSP subsidence aggregates in Takeaways and Analysis."
+                ),
+            },
+            {
+                "label": "DWR InSAR map services (ArcGIS ImageServer)",
                 "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR",
+                "description": (
+                    "Web map layers for annual subsidence rates and cumulative displacement used in the "
+                    "Explorer time slider (2016–2024 epochs)."
+                ),
             },
             {
-                "label": "DWR Monitoring Network Management (MNM) — groundwater elevation wells",
-                "url": "https://data.cnra.ca.gov/dataset/dwr-monitoring-network-management",
+                "label": "DWR GSP Monitoring Network (MNM)",
+                "url": "https://data.cnra.ca.gov/dataset/gspmd",
+                "description": (
+                    "Groundwater level sites and measurements submitted through the SGMA Portal's "
+                    "Monitoring Network Module. Used to compute each GSP's water-table level vs a pre-2016 "
+                    "baseline and 4-year trends in Close view and overdraft layers."
+                ),
             },
             {
-                "label": "DWR GSP determination status",
-                "url": "https://sgma.water.ca.gov/groundwater/sgma-gsp-inventory",
+                "label": "DWR Groundwater Sustainability Plan areas",
+                "url": "https://gis.water.ca.gov/arcgis/rest/services/Boundaries/i03_Groundwater_Sustainability_Plan_Areas/FeatureServer/0",
+                "description": (
+                    "Official GSP boundary polygons. Define the geographic units for all GSP-level metrics "
+                    "and map coloring across the site."
+                ),
             },
             {
-                "label": "Land IQ — fallowed land & cropland acres by GSP",
-                "url": "https://landiq.com/",
+                "label": "DWR GSP determination status (SGMA portal)",
+                "url": "https://sgma.water.ca.gov/portal/gsp/all",
+                "description": (
+                    "DWR review outcomes for each submitted plan (approved, incomplete, etc.). "
+                    "Drives GSP status labels, compliance filters, and determination text in Close view."
+                ),
             },
             {
-                "label": "USDA NASS — farm size / large-farm share by county",
-                "url": "https://www.nass.usda.gov/",
+                "label": "DWR statewide crop mapping (Land IQ)",
+                "url": "https://data.cnra.ca.gov/dataset/statewide-crop-mapping",
+                "description": (
+                    "Annual field-scale land-use mapping contracted by DWR. Fallowed-land share and total "
+                    "cropland acres by GSP come from this program (aggregated to plan areas for 2016–2024)."
+                ),
             },
             {
-                "label": "DWR dry-well reporting (MyDryWell)",
+                "label": "DWR land use surveys (program overview)",
+                "url": "https://water.ca.gov/Programs/Water-Use-And-Efficiency/Land-And-Water-Use/Land-Use-Surveys",
+                "description": (
+                    "Background on how DWR produces irrigated-crop and idle/fallow land classifications "
+                    "via remote sensing and ground reference — the parent program for the crop-mapping data."
+                ),
+            },
+            {
+                "label": "USDA NASS Census of Agriculture",
+                "url": "https://www.nass.usda.gov/Programs-and-Services/Ag-Census/index.php",
+                "description": (
+                    "County-level farm operation counts by acreage class (2012, 2017, 2022). "
+                    "Large-farm share in Close view is the share of operations ≥500 acres assigned to each GSP."
+                ),
+            },
+            {
+                "label": "DWR Household Water Supply Shortage Reporting (MyDryWell)",
                 "url": "https://mydrywell.water.ca.gov/",
-            },
-            {
-                "label": "Knight & Lee (2023) — valley subsidence volume estimate",
-                "url": "https://doi.org/10.1016/j.jhydrol.2023.130123",
-            },
-            {
-                "label": "Faunt et al. — peak subsidence rates (USGS SJV study)",
-                "url": "https://pubs.usgs.gov/sir/2016/5193/",
-            },
-            {
-                "label": "PPIC — farm supply & fallowing projections under SGMA",
-                "url": "https://www.ppic.org/blog/how-might-small-farms-fare-under-sgma/",
-            },
-            {
-                "label": "SJV Water — Aaron Fukuda quote (Sept 2023)",
-                "url": "https://sjvwater.org/san-joaquin-valley-not-quite-ready-for-impacts-of-reducing-groundwater-pumping-on-agricultural-economy/",
-            },
-            {
-                "label": "Maven's Notebook — Pixley groundwater clash (Oct 2025)",
-                "url": "https://mavensnotebook.com/2025/10/14/sjv-water-subsidence-photo-op-stirs-bad-feelings-in-already-bitter-groundwater-clash/",
-            },
-            {
-                "label": "USGS — San Joaquin Valley subsidence photo benchmarks",
-                "url": "https://www.usgs.gov/centers/ca-water/science/land-subsidence",
+                "description": (
+                    "Voluntary reports of dry or failing household wells. Mapped as points on the Explorer "
+                    "and counted by GSP/year in Close view — reporting expanded after ~2020, so trends are not a pure failure rate."
+                ),
             },
         ],
     }
@@ -2092,6 +2120,7 @@ def render_html() -> str:
       <button type="button" class="tab-btn" data-tab="takeaways">Takeaways</button>
       <button type="button" class="tab-btn" data-tab="analysis">Analysis</button>
       <button type="button" class="tab-btn" data-tab="sources">Sources</button>
+      <span class="top-credit">Alexandra Beyret | ECON 30</span>
     </div>
   </nav>
   <div id="tab-home" class="tab-panel active">
