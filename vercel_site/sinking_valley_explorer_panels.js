@@ -11,7 +11,7 @@
   };
 
   const METRIC_LABELS = {
-    gwe_cumulative_drop: "Water table vs pre-2016 baseline",
+    gwe_cumulative_drop: "Water table vs pre-SGMA average",
     gwe_trend_4yr_ft_yr: "Water table trend (4-yr, ft/yr)",
     fallow_pct: "Fallowed land (%)",
     well_reports: "Dry wells (cumulative)",
@@ -31,7 +31,7 @@
   const CLOSE_METRIC_HIDE = new Set(["gwe_trend_ft_yr", "gwe_trend_5yr_ft_yr"]);
 
   const METRIC_HINTS = {
-    gwe_cumulative_drop: "Is the table higher or lower than its pre-2016 average? Above baseline = higher (better). Below = deeper (worse). Not pumping volume.",
+    gwe_cumulative_drop: "Is the table higher or lower than the pre-SGMA average? Above = higher (better). Below = deeper (worse). Not pumping volume.",
     gwe_trend_4yr_ft_yr: "+ = table falling · − = table rising. Compares 4-yr average rates in each year.",
   };
 
@@ -41,7 +41,7 @@
     const s = n >= 100 ? n.toFixed(0) : n.toFixed(1);
     if (v > 0) return `${s} ft below baseline`;
     if (v < 0) return `${s} ft above baseline`;
-    return "At pre-2016 baseline";
+    return "At pre-SGMA average";
   }
 
   function isTrendKey(k) {
@@ -272,8 +272,419 @@
       glossEl.innerHTML = (intro.glossary || []).map((g) => `
         <dt>${g.term}</dt><dd>${g.def}</dd>`).join("");
     }
+
+    renderOrientSection(intro.orient);
   }
 
+
+  function buildOrientFlowHtml() {
+    const chain = [
+      { id: "ag", title: "Agriculture / Farms", sub: "San Joaquin Valley production", fill: "url(#flow-ag)" },
+      { id: "pump", title: "Groundwater pumping", sub: "irrigation & supply", fill: "url(#flow-pump)" },
+      { id: "gwe", title: "Declining water table", sub: "overdraft & depletion", fill: "url(#flow-gwe)" },
+      { id: "sub", title: "Land subsidence", sub: "permanent aquifer compaction", fill: "url(#flow-sub)" },
+      { id: "infra", title: "Infrastructure damage", sub: "canals, roads, levees", fill: "url(#flow-infra)" },
+    ];
+    const links = [
+      "high irrigation demand",
+      "groundwater overdraft",
+      "permanent aquifer compaction",
+      "land elevation change",
+    ];
+    const impacts = [
+      { from: "Agriculture", label: "jobs & local economy" },
+      { from: "Water table", label: "dry wells & low water access" },
+      { from: "Subsidence", label: "taxes & repair costs" },
+    ];
+
+    const W = 848;
+    const pad = 14;
+    const chainY = 58;
+    const boxH = 78;
+    const boxW = 112;
+    const arrowY = chainY + boxH / 2;
+    const slotW = (W - pad * 2) / chain.length;
+    const boxX = (i) => pad + i * slotW + (slotW - boxW) / 2;
+    const boxCx = (i) => boxX(i) + boxW / 2;
+    const chainBottom = chainY + boxH;
+    const impactY = chainBottom + 28;
+    const impactH = 56;
+    const impactW = 138;
+    const impactCx = [W / 6, W / 2, (W * 5) / 6];
+    const braceY0 = impactY + impactH;
+    const braceY1 = braceY0 + 14;
+    const braceY2 = braceY1 + 22;
+    const resW = 292;
+    const resH = 46;
+    const resX = W / 2 - resW / 2;
+    const resY = braceY2 + 2;
+    const viewH = resY + resH + 8;
+    const viewTop = 24;
+
+    const connLabelSvg = (label, mid) => {
+      const words = label.split(" ");
+      if (words.length >= 2) {
+        const splitAt = Math.ceil(words.length / 2);
+        const line1 = words.slice(0, splitAt).join(" ");
+        const line2 = words.slice(splitAt).join(" ");
+        return `<text x="${mid}" y="${arrowY - 16}" text-anchor="middle" class="oe-flow-conn"><tspan x="${mid}" dy="0">${line1}</tspan><tspan x="${mid}" dy="6.5">${line2}</tspan></text>`;
+      }
+      return `<text x="${mid}" y="${arrowY - 7}" text-anchor="middle" class="oe-flow-conn">${label}</text>`;
+    };
+
+    const chainBoxes = chain
+      .map((step, i) => {
+        const x = boxX(i);
+        const titleLines = step.title.split(" / ");
+        const titleSvg =
+          titleLines.length > 1
+            ? `<tspan x="${boxCx(i)}" dy="0">${titleLines[0]} /</tspan><tspan x="${boxCx(i)}" dy="11">${titleLines[1]}</tspan>`
+            : `<tspan x="${boxCx(i)}" dy="0">${step.title}</tspan>`;
+        return `
+          <rect x="${x}" y="${chainY}" width="${boxW}" height="${boxH}" rx="5" fill="${step.fill}" stroke="#c5d9e8" stroke-width="0.75"/>
+          <text x="${boxCx(i)}" y="${chainY + 24}" text-anchor="middle" class="oe-flow-title">${titleSvg}</text>
+          <text x="${boxCx(i)}" y="${chainY + 58}" text-anchor="middle" class="oe-flow-sub">${step.sub}</text>`;
+      })
+      .join("");
+
+    const connLabels = links
+      .map((label, i) => {
+        const mid = (boxX(i) + boxW + boxX(i + 1)) / 2;
+        return connLabelSvg(label, mid);
+      })
+      .join("");
+
+    const connArrows = links
+      .map((_, i) => {
+        const x1 = boxX(i) + boxW + 2;
+        const x2 = boxX(i + 1) - 8;
+        return `<line x1="${x1}" y1="${arrowY}" x2="${x2}" y2="${arrowY}" stroke="#64748b" stroke-width="0.75" marker-end="url(#flow-arrow)"/>`;
+      })
+      .join("");
+
+    const impactsSvg = impacts
+      .map((imp, i) => {
+        const cx = impactCx[i];
+        const x = cx - impactW / 2;
+        return `
+          <rect x="${x}" y="${impactY}" width="${impactW}" height="${impactH}" rx="5" fill="#fff" stroke="#c5d9e8" stroke-width="0.75"/>
+          <text x="${cx}" y="${impactY + 16}" text-anchor="middle" class="oe-flow-impact-from">${imp.from}</text>
+          <text x="${cx}" y="${impactY + 30}" text-anchor="middle" class="oe-flow-arrow">↓</text>
+          <text x="${cx}" y="${impactY + 46}" text-anchor="middle" class="oe-flow-impact-label">${imp.label}</text>`;
+      })
+      .join("");
+
+    return `
+      <figure class="orient-editorial orient-flow-editorial orient-diagram-interactive" aria-label="Causal chain from agriculture through groundwater pumping and subsidence to infrastructure damage, with resident impacts on jobs, wells, and taxes.">
+        <svg class="orient-editorial-svg orient-flow-svg" viewBox="0 ${viewTop} ${W} ${viewH - viewTop}" preserveAspectRatio="xMidYMid meet" role="img">
+          <defs>
+            <linearGradient id="flow-canvas" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fcfcfb"/>
+              <stop offset="100%" stop-color="#f6f5f2"/>
+            </linearGradient>
+            <linearGradient id="flow-ag" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="100%" stop-color="#f9fcfe"/>
+            </linearGradient>
+            <linearGradient id="flow-pump" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fcfdfe"/>
+              <stop offset="100%" stop-color="#f5f9fc"/>
+            </linearGradient>
+            <linearGradient id="flow-gwe" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f9fbfd"/>
+              <stop offset="100%" stop-color="#f0f6fa"/>
+            </linearGradient>
+            <linearGradient id="flow-sub" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f6f9fc"/>
+              <stop offset="100%" stop-color="#ebf2f8"/>
+            </linearGradient>
+            <linearGradient id="flow-infra" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f3f7fb"/>
+              <stop offset="100%" stop-color="#e6eef5"/>
+            </linearGradient>
+            <marker id="flow-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+              <path d="M0,0 L7,3.5 L0,7 Z" fill="#64748b"/>
+            </marker>
+          </defs>
+
+          <rect width="${W}" height="${viewH}" fill="url(#flow-canvas)"/>
+          <rect x="${pad - 4}" y="${viewTop + 4}" width="${W - pad * 2 + 8}" height="${viewH - viewTop - 8}" rx="4" fill="#fff" stroke="#e2e8f0" stroke-width="0.75"/>
+          <text x="${pad + 4}" y="${viewTop + 16}" class="oe-section-label">Causal chain</text>
+          <text x="${W - pad - 4}" y="${viewTop + 16}" text-anchor="end" class="oe-micro oe-muted">Left to right</text>
+
+          <g class="diagram-layer diagram-layer-chain">
+            ${chainBoxes}
+            ${connLabels}
+            ${connArrows}
+          </g>
+
+          <g class="diagram-layer diagram-layer-spine">
+            <line x1="${W / 2}" y1="${chainBottom + 4}" x2="${W / 2}" y2="${impactY - 6}" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.75"/>
+          </g>
+
+          <g class="diagram-layer diagram-layer-impacts">
+            ${impactsSvg}
+          </g>
+
+          <g class="diagram-layer diagram-layer-brace">
+            <path d="M ${impactCx[0]} ${braceY0} L ${impactCx[0]} ${braceY1} M ${impactCx[1]} ${braceY0} L ${impactCx[1]} ${braceY1} M ${impactCx[2]} ${braceY0} L ${impactCx[2]} ${braceY1} M ${impactCx[0]} ${braceY1} L ${impactCx[2]} ${braceY1} M ${impactCx[1]} ${braceY1} L ${impactCx[1]} ${braceY2}" fill="none" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="square" opacity="0.65"/>
+          </g>
+
+          <g class="diagram-layer diagram-layer-residents">
+            <rect x="${resX}" y="${resY}" width="${resW}" height="${resH}" rx="5" fill="#fff9f2" stroke="#e8d4b8" stroke-width="0.75"/>
+            <text x="${W / 2}" y="${resY + 18}" text-anchor="middle" class="oe-flow-title">Residents &amp; rural communities</text>
+            <text x="${W / 2}" y="${resY + 34}" text-anchor="middle" class="oe-flow-sub">Affected at every stage — wells, jobs, taxes</text>
+          </g>
+        </svg>
+      </figure>`;
+  }
+
+  function buildGspSchematicHtml() {
+    const x0 = 64;
+    const x1 = 274;
+    const x2 = 484;
+    const x3 = 694;
+    const x4 = 896;
+    const cx = [169, 379, 589, 795];
+
+    return `
+      <figure class="orient-editorial orient-gsp-editorial orient-gsp-interactive orient-diagram-interactive" aria-label="One connected basin with four adjacent GSPs. Regulated areas A and B, stressed C, and overdraft D share a continuous aquifer. Pumping in downstream GSPs lowers groundwater beneath upstream regions; land and infrastructure subside where overdraft is severe.">
+        <svg class="orient-editorial-svg" viewBox="48 42 864 510" preserveAspectRatio="xMidYMid meet" role="img">
+          <defs>
+            <linearGradient id="gsp-canvas" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fcfcfb"/>
+              <stop offset="100%" stop-color="#f6f5f2"/>
+            </linearGradient>
+            <linearGradient id="gsp-regulated" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#5a8f82" stop-opacity="0.1"/>
+              <stop offset="100%" stop-color="#5a8f82" stop-opacity="0.16"/>
+            </linearGradient>
+            <linearGradient id="gsp-stressed" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#c9a030" stop-opacity="0.1"/>
+              <stop offset="100%" stop-color="#c9a030" stop-opacity="0.16"/>
+            </linearGradient>
+            <linearGradient id="gsp-overdraft" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#b85c38" stop-opacity="0.1"/>
+              <stop offset="100%" stop-color="#b85c38" stop-opacity="0.17"/>
+            </linearGradient>
+            <linearGradient id="gsp-geology" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8e2d8"/>
+              <stop offset="45%" stop-color="#d8cfc2"/>
+              <stop offset="100%" stop-color="#c8bfb0"/>
+            </linearGradient>
+            <linearGradient id="gsp-aquifer-layer" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8ab4d4" stop-opacity="0.22"/>
+              <stop offset="100%" stop-color="#4a7a9a" stop-opacity="0.32"/>
+            </linearGradient>
+            <linearGradient id="gsp-water-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#6ba3cc" stop-opacity="0.38"/>
+              <stop offset="100%" stop-color="#2c5282" stop-opacity="0.52"/>
+            </linearGradient>
+            <linearGradient id="gsp-canal-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#d0d3d6"/>
+              <stop offset="100%" stop-color="#a8adb4"/>
+            </linearGradient>
+            <marker id="gsp-flow-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+              <path d="M0,0 L7,3.5 L0,7 Z" fill="#3d7ea8"/>
+            </marker>
+            <clipPath id="gsp-water-clip">
+              <path d="M${x0} 326 L${x1} 344 L${x2} 370 L${x3} 392 L${x4} 406 L${x4} 468 L${x0} 468 Z"/>
+            </clipPath>
+          </defs>
+
+          <rect width="960" height="560" fill="url(#gsp-canvas)"/>
+
+          <g class="gsp-layer gsp-layer-plan">
+          <!-- PLAN VIEW PANEL -->
+          <rect x="${x0}" y="48" width="${x4 - x0}" height="168" rx="4" fill="#fff" stroke="#e2e8f0" stroke-width="0.75"/>
+          <text x="${x0 + 12}" y="66" class="oe-section-label">Plan view</text>
+          <text x="${x4 - 12}" y="66" text-anchor="end" class="oe-micro oe-muted">Four adjacent GSP regions</text>
+
+          <!-- GSP regions — even blocks, subtle fills -->
+          <rect x="${x0 + 8}" y="78" width="${x1 - x0 - 8}" height="122" fill="url(#gsp-regulated)"/>
+          <rect x="${x1}" y="78" width="${x2 - x1}" height="122" fill="url(#gsp-regulated)"/>
+          <rect x="${x2}" y="78" width="${x3 - x2}" height="122" fill="url(#gsp-stressed)"/>
+          <rect x="${x3}" y="78" width="${x4 - x3 - 8}" height="122" fill="url(#gsp-overdraft)"/>
+
+          <line x1="${x1}" y1="78" x2="${x1}" y2="216" stroke="#5a6578" stroke-width="0.9" stroke-dasharray="6 4" opacity="0.78"/>
+          <line x1="${x2}" y1="78" x2="${x2}" y2="216" stroke="#5a6578" stroke-width="0.9" stroke-dasharray="6 4" opacity="0.78"/>
+          <line x1="${x3}" y1="78" x2="${x3}" y2="216" stroke="#5a6578" stroke-width="0.9" stroke-dasharray="6 4" opacity="0.78"/>
+
+          <text x="${cx[0]}" y="128" text-anchor="middle" class="oe-gsp-label">GSP A</text>
+          <text x="${cx[0]}" y="144" text-anchor="middle" class="oe-gsp-status oe-green">Regulated</text>
+          <text x="${cx[1]}" y="128" text-anchor="middle" class="oe-gsp-label">GSP B</text>
+          <text x="${cx[1]}" y="144" text-anchor="middle" class="oe-gsp-status oe-green">Regulated</text>
+          <text x="${cx[2]}" y="128" text-anchor="middle" class="oe-gsp-label">GSP C</text>
+          <text x="${cx[2]}" y="144" text-anchor="middle" class="oe-gsp-status oe-ochre">Stressed</text>
+          <text x="${cx[3]}" y="128" text-anchor="middle" class="oe-gsp-label">GSP D</text>
+          <text x="${cx[3]}" y="144" text-anchor="middle" class="oe-gsp-status oe-rust">Overdraft</text>
+          </g>
+
+          <g class="gsp-layer gsp-layer-xsection">
+          <!-- CROSS-SECTION PANEL -->
+          <rect x="${x0}" y="232" width="${x4 - x0}" height="248" rx="4" fill="#fff" stroke="#e2e8f0" stroke-width="0.75"/>
+          <text x="${x0 + 12}" y="250" class="oe-section-label">Cross-section</text>
+
+          <!-- Geology body -->
+          <path d="M${x0 + 8} 262 L${x1} 261 L${x2} 266 L${x3} 276 L${x4 - 8} 288 L${x4 - 8} 468 L${x0 + 8} 468 Z" fill="url(#gsp-geology)"/>
+          <rect x="${x0 + 8}" y="388" width="${x4 - x0 - 16}" height="52" fill="url(#gsp-aquifer-layer)"/>
+          <line x1="${x0 + 8}" y1="388" x2="${x4 - 8}" y2="388" stroke="#6b9ab8" stroke-width="0.6" opacity="0.55"/>
+          <line x1="${x0 + 8}" y1="440" x2="${x4 - 8}" y2="440" stroke="#6b9ab8" stroke-width="0.6" opacity="0.45"/>
+          <text x="${x0 + 16}" y="382" class="oe-tiny oe-muted">Aquifer</text>
+
+          <!-- GSP admin boundaries — cross-section (faint, above geology fill) -->
+          <line x1="${x1}" y1="258" x2="${x1}" y2="468" stroke="#5a6578" stroke-width="0.85" stroke-dasharray="6 4" opacity="0.36"/>
+          <line x1="${x2}" y1="258" x2="${x2}" y2="468" stroke="#5a6578" stroke-width="0.85" stroke-dasharray="6 4" opacity="0.36"/>
+          <line x1="${x3}" y1="258" x2="${x3}" y2="468" stroke="#5a6578" stroke-width="0.85" stroke-dasharray="6 4" opacity="0.36"/>
+          </g>
+
+          <g class="gsp-layer gsp-layer-water">
+          <!-- Groundwater saturation -->
+          <g clip-path="url(#gsp-water-clip)">
+            <rect x="${x0 + 8}" y="326" width="${x4 - x0 - 16}" height="142" fill="url(#gsp-water-fill)"/>
+          </g>
+
+          <!-- Water table — strong profile, steep decline in B & C -->
+          <path d="M${x0 + 8} 326 L${x1} 344 L${x2} 370 L${x3} 392 L${x4 - 8} 406" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+          <text x="${x0 + 16}" y="320" class="oe-tiny oe-blue">Water table</text>
+          </g>
+
+          <g class="gsp-layer gsp-layer-flow">
+          <!-- Directional groundwater flow (downgradient toward pumping) -->
+          <line x1="680" y1="382" x2="820" y2="398" stroke="#3d7ea8" stroke-width="0.85" marker-end="url(#gsp-flow-arrow)"/>
+          <line x1="520" y1="364" x2="680" y2="382" stroke="#3d7ea8" stroke-width="0.85" marker-end="url(#gsp-flow-arrow)"/>
+          <line x1="340" y1="348" x2="520" y2="364" stroke="#3d7ea8" stroke-width="0.85" marker-end="url(#gsp-flow-arrow)"/>
+          <text x="560" y="356" text-anchor="middle" class="oe-tiny oe-blue">Groundwater flow</text>
+          </g>
+
+          <g class="gsp-layer gsp-layer-surface">
+          <!-- Land surface -->
+          <path d="M${x0 + 8} 262 L${x1} 261 L${x2} 266 L${x3} 276 L${x4 - 8} 288" fill="none" stroke="#9a9088" stroke-width="0.75"/>
+
+          <!-- Canal on surface — design grade vs subsidence -->
+          <line x1="${x0 + 8}" y1="256" x2="${x4 - 8}" y2="256" stroke="#94a3b8" stroke-width="0.45" stroke-dasharray="5 4" opacity="0.5"/>
+          <text x="${x4 - 16}" y="252" text-anchor="end" class="oe-tiny oe-muted">Design grade</text>
+          <path d="M${x0 + 8} 262 L${x1} 261 L${x2} 266 L${x3} 276 L${x4 - 8} 288 L${x4 - 8} 294 L${x0 + 8} 268 Z" fill="url(#gsp-canal-fill)" opacity="0.75" stroke="#8a9098" stroke-width="0.45"/>
+          <line x1="${x0 + 20}" y1="272" x2="${x0 + 52}" y2="272" stroke="#8a9098" stroke-width="0.45"/>
+          <text x="${x0 + 56}" y="275" class="oe-tiny oe-muted">Irrigation canal</text>
+          </g>
+
+          <g class="gsp-layer gsp-layer-pump oe-pump">
+            <line x1="${cx[2]}" y1="266" x2="${cx[2]}" y2="370" stroke="#475569" stroke-width="0.65"/>
+            <polygon points="${cx[2]},266 ${cx[2] - 4},274 ${cx[2] + 4},274" fill="#475569" opacity="0.7"/>
+            <text x="${cx[2]}" y="262" text-anchor="middle" class="oe-tiny oe-muted">Pumping</text>
+            <line x1="${cx[3]}" y1="276" x2="${cx[3]}" y2="392" stroke="#475569" stroke-width="0.65"/>
+            <polygon points="${cx[3]},276 ${cx[3] - 4},284 ${cx[3] + 4},284" fill="#475569" opacity="0.7"/>
+            <text x="${cx[3]}" y="272" text-anchor="middle" class="oe-tiny oe-muted">Pumping</text>
+          </g>
+
+          <g class="gsp-layer gsp-layer-callout oe-callout">
+            <rect x="348" y="278" width="62" height="16" rx="2" fill="#ecfdf5" stroke="#5a8f82" stroke-width="0.5"/>
+            <text x="379" y="289" text-anchor="middle" class="oe-callout-text oe-green">Minor</text>
+            <rect x="554" y="286" width="70" height="16" rx="2" fill="#fffef8" stroke="#c9a030" stroke-width="0.5"/>
+            <text x="589" y="297" text-anchor="middle" class="oe-callout-text oe-ochre">Canal sag</text>
+            <rect x="748" y="298" width="94" height="16" rx="2" fill="#fffafa" stroke="#b85c38" stroke-width="0.5"/>
+            <text x="795" y="309" text-anchor="middle" class="oe-callout-text oe-rust">Severe damage</text>
+          </g>
+
+          <g class="gsp-layer gsp-layer-footer">
+          <!-- Explanatory statement -->
+          <text x="480" y="508" text-anchor="middle" class="oe-annotation">Overdraft in downstream GSPs lowers the shared aquifer across basin boundaries.</text>
+
+          <!-- Legend bar -->
+          <rect x="290" y="528" width="380" height="16" rx="2" fill="#fff" stroke="#e8eaec" stroke-width="0.4"/>
+          <circle cx="318" cy="536" r="3.5" fill="#5a8f82"/>
+          <text x="328" y="539" class="oe-legend-text">Regulated</text>
+          <circle cx="418" cy="536" r="3.5" fill="#c9a030"/>
+          <text x="428" y="539" class="oe-legend-text">Stressed</text>
+          <circle cx="508" cy="536" r="3.5" fill="#b85c38"/>
+          <text x="518" y="539" class="oe-legend-text">Overdraft</text>
+          <line x1="598" y1="536" x2="612" y2="536" stroke="#8a9098" stroke-width="1.2"/>
+          <text x="620" y="539" class="oe-legend-text">Canal</text>
+          </g>
+        </svg>
+      </figure>`;
+  }
+
+  function renderOrientSection(orient) {
+    const el = document.getElementById("intro-orient-panel");
+    if (!el || !orient) return;
+
+    const boldMd = (s) =>
+      String(s || "").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+
+    const guideHtml = (orient.site_guide || [])
+      .map(
+        (g, i) => `
+        <li class="orient-guide-item">
+          <a href="#" class="orient-guide-link" data-goto-tab="${g.tab_id}">
+            <span class="orient-guide-num">${String(i + 1).padStart(2, "0")}</span>
+            <span class="orient-guide-body">
+              <span class="orient-guide-tab">${g.tab}</span>
+              <span class="orient-guide-blurb">${g.blurb}</span>
+            </span>
+            <span class="orient-guide-arrow" aria-hidden="true">→</span>
+          </a>
+        </li>`,
+      )
+      .join("");
+
+    el.innerHTML = `
+      <div class="orient-panel">
+        <header class="orient-panel-header">
+          <h2 class="orient-title">${orient.title || ""}</h2>
+        </header>
+        <div class="orient-panel-body">
+        <div class="orient-big-q">
+          <span class="orient-big-q-label">${orient.big_question?.label || "Big question"}</span>
+          <p class="orient-big-q-text">${orient.big_question?.text || ""}</p>
+        </div>
+
+        <section class="orient-section orient-section-connect" aria-labelledby="orient-connect-head">
+          <div class="orient-connect-flow">
+            <h3 id="orient-connect-head" class="orient-section-head">How everything connects</h3>
+            <p class="orient-network-lede">${boldMd(orient.network_caption)}</p>
+            <div class="orient-network-wrap">${buildOrientFlowHtml()}</div>
+          </div>
+          <div class="orient-connect-break" aria-hidden="true">
+            <span class="orient-connect-break-line"></span>
+            <span class="orient-connect-break-label">Fragmented policy · shared reality</span>
+            <span class="orient-connect-break-line"></span>
+          </div>
+          <div class="orient-notes">
+            <div class="orient-notes-row">
+              <div class="orient-note">
+                <h4>What is a GSP?</h4>
+                <p>${boldMd(orient.gsp_note)}</p>
+              </div>
+              <div class="orient-note orient-note-warn">
+                <h4>Shared groundwater</h4>
+                <p>${boldMd(orient.connected_note)}</p>
+              </div>
+            </div>
+            ${buildGspSchematicHtml()}
+            <p class="orient-editorial-cap">Note: Schematic illustration for orientation only. Hydrogeologic processes, basin geometry, and GSP conditions are simplified and not drawn to scale.</p>
+          </div>
+        </section>
+        </div>
+      </div>
+
+      <section class="intro-section orient-guide-section" aria-labelledby="orient-guide-head">
+        <h2 id="orient-guide-head">Where to look on this site</h2>
+        <p class="orient-guide-lede">Jump straight to the view you need: play around with the overview map, look at GSP specific details, and more.</p>
+        <ul class="orient-guide">${guideHtml}</ul>
+        <p class="orient-cta-wrap">
+          <a href="#" class="intro-cta inline-cta orient-guide-cta" data-goto-tab="explorer">Start with the map →</a>
+        </p>
+      </section>`;
+
+    el.querySelectorAll("[data-goto-tab]").forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        switchTab(link.dataset.gotoTab);
+      });
+    });
+  }
   function formatQuoteParas(text) {
     const paras = String(text || "").split("\n\n").map((p) => p.trim()).filter(Boolean);
     if (!paras.length) return "";
@@ -391,46 +802,95 @@
     });
   }
 
+  const EXPLORE_TAB_LABEL = { explorer: "map", close: "close view" };
+
+  function exploreTabLabel(tab) {
+    return EXPLORE_TAB_LABEL[tab] || String(tab || "").replace(/_/g, " ");
+  }
+
+  const TAKEAWAY_TONE_LABEL = { good: "Positive signal", bad: "Negative signal", warn: "Mixed / caution", mixed: "Mixed signal", neutral: "" };
+
   function renderTakeawaysPage() {
     const page = DATA.takeaways_page;
     if (!page) return;
     const ledeEl = document.getElementById("takeaways-lede");
+    const headlineEl = document.getElementById("takeaways-headline");
     const answerEl = document.getElementById("takeaways-sgma-answer");
     const sectionsEl = document.getElementById("takeaways-sections");
-    if (ledeEl) ledeEl.textContent = page.lede || "";
+    if (ledeEl) {
+      if (page.lede) {
+        ledeEl.hidden = false;
+        ledeEl.textContent = page.lede;
+      } else {
+        ledeEl.hidden = true;
+        ledeEl.textContent = "";
+      }
+    }
+
+    const cards = page.headline_cards || [];
+    if (headlineEl) {
+      if (cards.length) {
+        headlineEl.hidden = false;
+        headlineEl.innerHTML = cards.map((c) => {
+          const tone = c.tone || "neutral";
+          return `
+            <div class="takeaway-head-card takeaway-head-card-${tone}" title="${c.hint || ""}">
+              <span class="takeaway-head-val">${c.val}</span>
+              <span class="takeaway-head-lbl">${c.lbl}</span>
+              ${c.hint ? `<span class="takeaway-head-hint">${c.hint}</span>` : ""}
+            </div>`;
+        }).join("") + (page.baseline_note ? `<p class="takeaways-baseline-note">${page.baseline_note}</p>` : "");
+      } else {
+        headlineEl.hidden = true;
+        headlineEl.innerHTML = "";
+      }
+    }
+
     if (answerEl) {
       const ans = page.sgma_answer;
       if (ans?.text) {
         answerEl.hidden = false;
+        const tone = ans.tone || "mixed";
+        answerEl.className = `takeaways-sgma-answer takeaway-sgma-tone-${tone}`;
         answerEl.innerHTML = ans.question
-          ? `<strong>${ans.question}</strong> ${ans.text}`
+          ? `<strong>${ans.question}</strong> <span>${ans.text}</span>`
           : ans.text;
       } else {
         answerEl.hidden = true;
+        answerEl.className = "takeaways-sgma-answer";
         answerEl.textContent = "";
       }
     }
+
     if (!sectionsEl) return;
-    sectionsEl.innerHTML = (page.sections || []).map((s) => `
-      <section class="takeaway-section" id="takeaway-${s.id || ""}">
-        <h2>${s.title || ""}</h2>
-        ${s.focus ? `<p class="takeaway-focus">${s.focus}</p>` : ""}
-        ${s.body ? `<p class="takeaway-body">${s.body}</p>` : ""}
-        ${(s.stats || []).length ? `
-          <div class="takeaway-stats">
-            ${(s.stats || []).map((m) => `
-              <div class="takeaway-stat${m.compliant ? " takeaway-stat-compliant" : ""}">
-                <span class="val">${m.val}</span>
-                <span class="lbl">${m.lbl}</span>
-              </div>`).join("")}
-          </div>` : ""}
-        ${s.sgma_takeaway ? `<p class="takeaway-sgma-verdict">${s.sgma_takeaway}</p>` : ""}
-        ${(s.bullets || []).length ? `
-          <ul class="takeaway-bullets">
-            ${(s.bullets || []).map((b) => `<li>${b}</li>`).join("")}
-          </ul>` : ""}
-        ${s.explore_tab ? `<p class="takeaway-explore"><a href="#" class="intro-cta inline-cta" data-goto-tab="${s.explore_tab}">Explore in ${s.explore_tab === "explorer" ? "map" : s.explore_tab.replace(/_/g, " ")} →</a></p>` : ""}
-      </section>`).join("");
+    sectionsEl.innerHTML = (page.sections || []).map((s) => {
+      const verdictTone = s.verdict_tone || "neutral";
+      const toneLabel = TAKEAWAY_TONE_LABEL[verdictTone] || "";
+      const statsHtml = (s.stats || []).map((m) => {
+        const tone = m.tone || (m.compliant ? "good" : "neutral");
+        return `
+          <div class="takeaway-stat takeaway-stat-tone-${tone}${m.compliant ? " takeaway-stat-compliant" : ""}">
+            <span class="val">${m.val}</span>
+            <span class="lbl">${m.lbl}</span>
+            ${m.hint ? `<span class="takeaway-stat-hint">${m.hint}</span>` : ""}
+          </div>`;
+      }).join("");
+      return `
+      <section class="takeaway-section takeaway-section-${verdictTone}" id="takeaway-${s.id || ""}">
+        <div class="takeaway-section-copy">
+          <h2>${s.title || ""}</h2>
+          ${s.focus ? `<p class="takeaway-focus">${toneLabel ? `<span class="takeaway-tone-badge takeaway-tone-badge-${verdictTone}">${toneLabel}</span>` : ""}${s.focus}</p>` : ""}
+          ${s.body ? `<p class="takeaway-body">${s.body}</p>` : ""}
+          ${statsHtml ? `<div class="takeaway-stats">${statsHtml}</div>` : ""}
+          ${s.sgma_takeaway ? `<p class="takeaway-sgma-verdict takeaway-verdict-tone-${verdictTone}">${s.sgma_takeaway}</p>` : ""}
+          ${(s.bullets || []).length ? `
+            <ul class="takeaway-bullets">
+              ${(s.bullets || []).map((b) => `<li>${b}</li>`).join("")}
+            </ul>` : ""}
+          ${s.explore_tab ? `<p class="takeaway-explore"><a href="#" class="intro-cta inline-cta" data-goto-tab="${s.explore_tab}">Explore in ${exploreTabLabel(s.explore_tab)} →</a></p>` : ""}
+        </div>
+      </section>`;
+    }).join("");
     sectionsEl.querySelectorAll("[data-goto-tab]").forEach((el) => {
       el.addEventListener("click", (e) => {
         e.preventDefault();

@@ -105,6 +105,122 @@
   }
   updateCompareDesc();
 
+  const varGuides = DATA.explorer_variable_guides || [];
+  const varGuideById = Object.fromEntries(varGuides.map((g) => [g.id, g]));
+  let activeVarGuideId = varGuides[0]?.id || null;
+  let varGuideFromTab = false;
+  let varWhyPanelClosed = false;
+
+  function setVarWhyPanelOpen(open) {
+    varWhyPanelClosed = !open;
+    const panel = document.getElementById("var-why-panel");
+    const reopen = document.getElementById("var-why-open");
+    if (panel) panel.classList.toggle("is-closed", !open);
+    if (reopen) reopen.hidden = open;
+  }
+
+  function guideIdForSubsidence(mode) {
+    if (mode === "none") return null;
+    return mode === "annual_rate" ? "subsidence_annual_rate" : "subsidence_cumulative";
+  }
+
+  function guideIdForOverdraft(mode) {
+    if (mode === "none") return null;
+    return mode === "annual" ? "overdraft_annual" : "overdraft_cumulative";
+  }
+
+  function guideIdFromActiveLayers() {
+    if (lensSelect.value !== "none") return lensSelect.value;
+    const od = guideIdForOverdraft(overdraftMode);
+    if (od) return od;
+    return guideIdForSubsidence(subsidenceMode);
+  }
+
+  function applyVarGuideControl(guide) {
+    if (!guide) return;
+    if (guide.control === "subsidence" && subsidenceSelect) {
+      subsidenceSelect.value = guide.value;
+      subsidenceSelect.dispatchEvent(new Event("change", { bubbles: true }));
+    } else if (guide.control === "overdraft" && overdraftSelect) {
+      overdraftSelect.value = guide.value;
+      overdraftSelect.dispatchEvent(new Event("change", { bubbles: true }));
+    } else if (guide.control === "equity" && lensSelect) {
+      lensSelect.value = guide.value;
+      lensSelect.dispatchEvent(new Event("change", { bubbles: true }));
+    } else if (guide.control === "toggle" && guide.value === "well-dots") {
+      const cb = document.getElementById("toggle-well-dots");
+      if (cb && !cb.checked) {
+        cb.checked = true;
+        cb.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    }
+  }
+
+  function showVarGuide(id, opts = {}) {
+    const guide = varGuideById[id];
+    if (!guide) return;
+    activeVarGuideId = id;
+    const nameEl = document.getElementById("var-why-name");
+    const defEl = document.getElementById("var-why-def");
+    const whyEl = document.getElementById("var-why-why");
+    const srcEl = document.getElementById("var-why-source");
+    if (nameEl) nameEl.textContent = guide.label || guide.tab || "";
+    if (defEl) defEl.textContent = guide.definition || "";
+    if (whyEl) whyEl.textContent = guide.why || "";
+    if (srcEl) srcEl.textContent = guide.source ? `Source: ${guide.source}` : "";
+    document.querySelectorAll(".var-why-tab").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.guideId === id);
+      btn.setAttribute("aria-selected", btn.dataset.guideId === id ? "true" : "false");
+    });
+    if (opts.apply) applyVarGuideControl(guide);
+    if (opts.open !== false) setVarWhyPanelOpen(true);
+  }
+
+  function syncVarGuideFromControls() {
+    if (varGuideFromTab) return;
+    const id = guideIdFromActiveLayers();
+    if (id) showVarGuide(id, { open: false });
+  }
+
+  function initVarWhyPanel() {
+    const tabsEl = document.getElementById("var-why-tabs");
+    if (!tabsEl || !varGuides.length) return;
+
+    document.getElementById("var-why-close")?.addEventListener("click", () => setVarWhyPanelOpen(false));
+    document.getElementById("var-why-open")?.addEventListener("click", () => setVarWhyPanelOpen(true));
+
+    tabsEl.innerHTML = varGuides
+      .map(
+        (g) =>
+          `<button type="button" class="var-why-tab" role="tab" data-guide-id="${g.id}" aria-selected="false">${g.tab || g.label}</button>`,
+      )
+      .join("");
+
+    tabsEl.querySelectorAll(".var-why-tab").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        varGuideFromTab = true;
+        showVarGuide(btn.dataset.guideId, { apply: true });
+        setTimeout(() => {
+          varGuideFromTab = false;
+        }, 0);
+      });
+    });
+
+    const jump = (el, id) => {
+      if (!el) return;
+      el.classList.add("var-why-jump");
+      el.addEventListener("click", () => showVarGuide(id, { apply: false, open: true }));
+    };
+    jump(document.querySelector('label[for="subsidence-select"]'), "subsidence_annual_rate");
+    jump(document.querySelector('label[for="overdraft-select"]'), "overdraft_cumulative");
+    jump(document.querySelector('label[for="effectiveness-select"]'), "fallowed_land");
+    jump(document.querySelector("#toggle-well-dots")?.closest("label"), "dry_wells");
+
+    showVarGuide(activeVarGuideId || varGuides[0].id);
+  }
+
+  initVarWhyPanel();
+
   function compareActive() {
     return compareMode !== "overlay" && showOverdraftOverlay() && showEquityOverlays();
   }
@@ -481,9 +597,9 @@
         const v = yv.gwe_cumulative_drop ?? props.gwe_cumulative_drop;
         if (v != null) {
           const n = Math.abs(Number(v)).toFixed(1);
-          if (v > 0) lines.push(`Water table: ${n} ft below pre-2016 baseline`);
-          else if (v < 0) lines.push(`Water table: ${n} ft above pre-2016 baseline`);
-          else lines.push("Water table: at pre-2016 baseline");
+          if (v > 0) lines.push(`Water table: ${n} ft below pre-SGMA average`);
+          else if (v < 0) lines.push(`Water table: ${n} ft above pre-SGMA average`);
+          else lines.push("Water table: at pre-SGMA average");
         }
       }
     }
@@ -641,6 +757,8 @@
     }
     block.classList.remove("hidden");
     title.textContent = subsidenceMode === "annual_rate" ? "Subsidence rate" : "Cumulative subsidence";
+    title.classList.add("var-why-link");
+    title.onclick = () => showVarGuide(guideIdForSubsidence(subsidenceMode) || "subsidence_annual_rate", { open: true });
     bar.className = subsidenceMode === "annual_rate" ? "subsidence-bar" : "subsidence-bar cumulative-bar";
     document.getElementById("legend-min").textContent =
       subsidenceMode === "annual_rate" ? "Slower (green)" : "0 ft";
@@ -662,6 +780,8 @@
     }
     block.classList.remove("hidden");
     title.textContent = leg.title || "Overdraft";
+    title.classList.add("var-why-link");
+    title.onclick = () => showVarGuide(guideIdForOverdraft(overdraftMode) || "overdraft_cumulative", { open: true });
     minEl.textContent = leg.min || "Low";
     maxEl.textContent = leg.max || "High";
     const cols = overdraftMode === "annual"
@@ -690,6 +810,8 @@
       ag_production: "Ag production (acres)",
     };
     title.textContent = labels[lens] || "Equity lens";
+    title.classList.add("var-why-link");
+    title.onclick = () => showVarGuide(lens, { open: true });
 
     if (lens === "gsp_status") {
       (DATA.status_legend || []).forEach((item) => {
@@ -870,6 +992,8 @@
     document.getElementById("split-container").classList.add("active");
     document.getElementById("hud-body").classList.add("split-hidden");
     document.getElementById("legend-panel").classList.add("split-hidden");
+    document.getElementById("var-why-panel")?.classList.add("split-hidden");
+    document.getElementById("var-why-open")?.classList.add("split-hidden");
     updateSplitChrome();
 
     const preYear = splitCmp.pre_year || 2014;
@@ -891,6 +1015,11 @@
     document.getElementById("split-container").classList.remove("active");
     document.getElementById("hud-body").classList.remove("split-hidden");
     document.getElementById("legend-panel").classList.remove("split-hidden");
+    document.getElementById("var-why-panel")?.classList.remove("split-hidden");
+    document.getElementById("var-why-open")?.classList.remove("split-hidden");
+    if (varWhyPanelClosed) {
+      document.getElementById("var-why-open").hidden = false;
+    }
     applyViewLayout();
   }
 
@@ -947,6 +1076,7 @@
     subsidenceMode = e.target.value;
     updateSubsidenceLegend();
     refreshMap(map, selectedYear);
+    syncVarGuideFromControls();
   });
 
   overdraftSelect?.addEventListener("change", (e) => {
@@ -958,6 +1088,7 @@
       refreshLayerVisibility(map);
     }
     applyViewLayout();
+    syncVarGuideFromControls();
   });
 
   lensSelect.addEventListener("change", () => {
@@ -968,6 +1099,7 @@
       refreshLayerVisibility(map);
     }
     applyViewLayout();
+    syncVarGuideFromControls();
   });
 
   compareSelect?.addEventListener("change", (e) => {
@@ -990,6 +1122,7 @@
   document.getElementById("toggle-well-dots").addEventListener("change", (e) => {
     const v = e.target.checked ? "visible" : "none";
     if (map.getLayer("wells-circle")) map.setLayoutProperty("wells-circle", "visibility", v);
+    if (e.target.checked) showVarGuide("dry_wells", { open: true });
   });
 
   document.getElementById("toggle-split").addEventListener("change", (e) => {

@@ -52,7 +52,8 @@ FARM_BUCKET_MAP: dict[str, str] = {
 }
 FARM_BUCKET_ORDER = ["under_50", "50_179", "180_499", "500_999", "1000_plus"]
 FARM_CENSUS_YEARS = [2012, 2017, 2022]
-GWE_BASELINE_YEAR = 2016
+GWE_BASELINE_YEAR = 2014  # SGMA enacted; pre-SGMA average = all MNM years before this
+SGMA_ERA_START = 2016  # start of site's main before/after metric window (fallow, wells, etc.)
 
 MNM_SITES_URL = (
     "https://data.cnra.ca.gov/dataset/536dc423-01b3-4094-bdcd-903df84f6768/"
@@ -158,7 +159,7 @@ def status_at_year(final_status: str, year: int, posted_year: int | None) -> str
     fs = (final_status or "unknown").strip()
     intervention_year = posted_year or 2020
 
-    if year < 2016:
+    if year < GWE_BASELINE_YEAR:
         return "pre_sgma"
     if fs == "state_intervention":
         if year < intervention_year:
@@ -341,7 +342,7 @@ def build_gwe_trend_series(
     return out
 
 
-def build_gwe_pre2016_baseline(gwe_series: dict[str, list[dict]]) -> dict[str, float]:
+def build_gwe_pre_sgma_baseline(gwe_series: dict[str, list[dict]]) -> dict[str, float]:
     deck_pre = _gwe_pre2014_from_deck()
     out: dict[str, float] = {}
     for gid, rows in gwe_series.items():
@@ -560,7 +561,7 @@ def enrich_gsps(
     gwe_trend_series: dict[str, list[dict]],
     gwe_trend_4yr_series: dict[str, list[dict]],
     well_series: dict[str, list[dict]],
-    gwe_pre2016: dict[str, float],
+    gwe_pre_sgma: dict[str, float],
     gsp_county_fips: dict[str, str],
     farm_by_county: dict[str, dict[int, dict]],
 ) -> dict:
@@ -575,7 +576,7 @@ def enrich_gsps(
     for feat in gsp_geo.get("features", []):
         props = feat.setdefault("properties", {})
         gid = str(props.get("gsp_id") or props.get("GSP_ID") or "")
-        pre_gwe = gwe_pre2016.get(gid)
+        pre_gwe = gwe_pre_sgma.get(gid)
         county_fips = gsp_county_fips.get(gid, "")
         county_farm = farm_by_county.get(county_fips, {})
         year_vals = {}
@@ -594,7 +595,7 @@ def enrich_gsps(
                 year,
             )
             if st is None:
-                st = "pre_sgma" if year < 2016 else ("incomplete" if year <= 2019 else "under_review")
+                st = "pre_sgma" if year < GWE_BASELINE_YEAR else ("incomplete" if year <= 2019 else "under_review")
 
             gwe_drop = None
             if pre_gwe is not None and gwe_now is not None:
@@ -635,7 +636,7 @@ def enrich_gsps(
 
         props["year_values"] = year_vals
         if pre_gwe is not None:
-            props["gwe_pre2016"] = pre_gwe
+            props["gwe_pre_sgma"] = pre_gwe
         if county_fips:
             props["county_fips"] = county_fips
 
@@ -1088,7 +1089,7 @@ def build_intro_page(gsp_catalog: list[dict]) -> dict:
             {"term": "SGMA", "def": "Sustainable Groundwater Management Act (2014) — requires local agencies to balance pumping with recharge by 2040."},
             {"term": "GSA", "def": "Groundwater Sustainability Agency — local public entity with authority to regulate wells and pumping."},
             {"term": "GSP", "def": "Groundwater Sustainability Plan — basin document showing how sustainable yield will be reached."},
-            {"term": "Overdraft (map layer)", "def": "Water table height vs a pre-2016 baseline. Positive = below baseline (deeper). Negative = above baseline (higher). Not pumping volume."},
+            {"term": "Overdraft (map layer)", "def": "Water table vs the pre-SGMA average — mean groundwater elevation from DWR wells in each GSP, using all monitoring years before SGMA (2014). Positive = deeper than that norm (worse). Negative = shallower (recovered). Not pumping volume."},
             {"term": "Fallowed land", "def": "Irrigated acres left unplanted as pumping limits tighten — growers fallow or remove orchards to comply with SGMA (Ag Alert, May 2026)."},
             {"term": "Sustainable yield", "def": "Maximum pumping without causing undesirable results (see SMC)."},
         ],
@@ -1100,6 +1101,66 @@ def build_intro_page(gsp_catalog: list[dict]) -> dict:
             {"id": "subsidence_smc", "label": "Land subsidence", "desc": "Plans must avoid sinking that damages infrastructure."},
             {"id": "interconnected", "label": "Interconnected surface water", "desc": "Depletion cannot unduly reduce streams and rivers."},
         ],
+        "orient": {
+            "title": "Regulatory context and basin connectivity",
+            "big_question": {
+                "label": "Big question",
+                "text": (
+                    "More than a decade after SGMA, is groundwater regulation actually easing overdraft, "
+                    "subsidence, and dry wells — and who pays when pumping is cut?"
+                ),
+            },
+            "gsp_note": (
+                "California split overdrafted basins into **Groundwater Sustainability Plan (GSP) areas** — "
+                "each with a local Groundwater Sustainability Agency (GSA) that writes and implements a plan. "
+                "This site tracks **45 San Joaquin Valley GSPs** separately. Metrics are plan-area averages; "
+                "they are the unit SGMA uses for compliance, not individual farms or neighborhoods."
+            ),
+            "connected_note": (
+                "Aquifers do not stop at GSP borders. If one plan area cuts pumping and lifts its water table "
+                "while a neighbor keeps overdrafting, groundwater can flow across the line — local recovery may "
+                "not translate into less valley-wide subsidence. Watch both **within-GSP trends** and **regional "
+                "InSAR patterns** on the Explorer."
+            ),
+            "network_caption": (
+                "Left to right: irrigation drives pumping and overdraft, compaction sinks land, and "
+                "public infrastructure pays for damage. **Residents & rural communities** sit below — "
+                "affected by dry wells, repair taxes, and farm-dependent local economies. The dashed "
+                "line marks shared aquifers that cross GSP boundaries."
+            ),
+            "site_guide": [
+                {
+                    "tab": "Explorer",
+                    "tab_id": "explorer",
+                    "blurb": "Valley-wide subsidence and water-table maps — zoom to see where sinking and overdraft concentrate.",
+                },
+                {
+                    "tab": "Close view",
+                    "tab_id": "close",
+                    "blurb": "One GSP at a time: 2016→2024 fallowing, water-table depth, dry wells, and DWR determination status.",
+                },
+                {
+                    "tab": "Variable relationships",
+                    "tab_id": "relationships",
+                    "blurb": "Scatter charts comparing every GSP before vs after SGMA on each metric.",
+                },
+                {
+                    "tab": "Takeaways",
+                    "tab_id": "takeaways",
+                    "blurb": "Plain-language synthesis for agriculture, residents, and environment — plus “Is SGMA working?”",
+                },
+                {
+                    "tab": "Analysis",
+                    "tab_id": "analysis",
+                    "blurb": "GSP-level statistical patterns (correlations, group comparisons) — descriptive, not causal.",
+                },
+                {
+                    "tab": "Sources",
+                    "tab_id": "sources",
+                    "blurb": "Official DWR, Land IQ, NASS, and InSAR datasets behind the numbers.",
+                },
+            ],
+        },
     }
 
 
@@ -1151,7 +1212,7 @@ def _sgma_working_answer(
         else "water-table recovery is uneven"
     )
     below_clause = (
-        f" and {ap_below_24} of {ap_gwe24_n} remain below pre-2016"
+        f" and {ap_below_24} of {ap_gwe24_n} remain below the pre-SGMA average"
         if ap_gwe24_n and ap_below_24
         else ""
     )
@@ -1161,9 +1222,15 @@ def _sgma_working_answer(
         else ""
     )
     return (
-        f"Partly — SGMA is forcing pumping cuts ({fallow_clause}), but aquifer and land-surface recovery lag "
-        f"({table_clause}{below_clause}{sub_clause}), so environmental effectiveness is incomplete and "
-        f"compliance costs fall unevenly on producers and communities in the basins still deepest below baseline."
+        "Partly. Pumping cuts are showing up as more fallow land, but the water table and land surface are recovering slowly. "
+        + (
+            f"{ap_gwe_higher} of {ap_gwe_n} approved GSPs show 2024 above 2016 (recent rise)"
+            if ap_gwe_n
+            else "Water-table recovery is uneven"
+        )
+        + (f"; {ap_below_24} of {ap_gwe24_n} stay below the pre-SGMA average in 2024" if ap_gwe24_n and ap_below_24 else "")
+        + (f"; {sinking_24} of {sub24_n} still sank in 2024" if sub24_n else "")
+        + ". One connected aquifer, many separate plans."
     )
 
 
@@ -1288,10 +1355,17 @@ def build_takeaways_page(
         ap_sinking_24, ap_sub24_n, sinking_24, sub24_n, latest_sub_year, ap_avg_sub_yr,
     )
 
+    res_tone = "mixed"
+    if ap_gwe24_n and ap_below_24 >= ap_gwe24_n / 2:
+        res_tone = "bad" if not (ap_gwe_n and ap_gwe_higher >= ap_gwe_n / 2) else "mixed"
+    elif ap_gwe_n and ap_gwe_higher >= ap_gwe_n / 2:
+        res_tone = "good"
+
     return {
-        "lede": (
-            "Summary of GSP-level changes from 2016 to 2024. Each ratio uses only GSPs with data "
-            "for that metric — denominators differ because monitoring coverage varies by dataset."
+        "lede": "",
+        "baseline_note": (
+            "Pre-SGMA average: mean groundwater level from DWR wells in each GSP, "
+            "using all monitoring years before SGMA (2014). Positive on the map = still deeper than that norm."
         ),
         "sgma_answer": {
             "question": "Is SGMA working?",
@@ -1299,57 +1373,120 @@ def build_takeaways_page(
                 ap_fallow_up, ap_fallow_n, ap_gwe_higher, ap_gwe_n,
                 ap_below_24, ap_gwe24_n, sinking_24, sub24_n,
             ),
+            "tone": "mixed",
         },
+        "headline_cards": [
+            {
+                "tone": "bad",
+                "val": f"{sinking_24}/{sub24_n}",
+                "lbl": "Still sinking (2024)",
+                "hint": "GSPs with InSAR — sank >0.05 ft",
+            },
+            {
+                "tone": "bad",
+                "val": f"{below_baseline_24}/{gwe24_n}",
+                "lbl": "Below pre-SGMA average",
+                "hint": "2024 water table still deeper than pre-SGMA norm",
+            },
+            {
+                "tone": "good",
+                "val": f"{gwe_higher}/{gwe_n}",
+                "lbl": "Table rose 2016→2024",
+                "hint": "2024 above 2016 — recent recovery, not full recovery",
+            },
+            {
+                "tone": "warn",
+                "val": f"{fallow_up}/{fallow_n}",
+                "lbl": "More fallow land",
+                "hint": "Idle cropland rose 2016→2024",
+            },
+        ],
         "sections": [
+            {
+                "id": "governance",
+                "title": "Fragmented regulation & policy efficiency",
+                "focus": "Shared aquifers, separate plans",
+                "body": (
+                    "The Valley is split into separate groundwater plans on one connected aquifer. When one GSP "
+                    "cuts pumping and a neighbor does not, groundwater flows across the line — local compliance "
+                    "can fail to lift the shared water table."
+                ),
+                "bullets": [
+                    f"{len(sjv)} SJV GSPs regulate pumping on hydrologically linked aquifers.",
+                    f"{fallow_up} of {fallow_n} GSPs with fallow data raised idle land; {gwe_lower} of {gwe_n} with water-table data still show a lower table in 2024.",
+                    "See Home → Regulatory context for the cross-boundary schematic.",
+                ],
+                "stats": [
+                    {"val": str(len(sjv)), "lbl": "Separate GSP plans", "tone": "neutral"},
+                    {"val": f"{fallow_up}/{fallow_n}", "lbl": "Higher fallow share", "tone": "warn"},
+                    {
+                        "val": f"{gwe_higher}/{gwe_n}",
+                        "lbl": "Water table rose since 2016",
+                        "tone": "good",
+                    },
+                ],
+                "sgma_takeaway": (
+                    "Fragmented regulation is central to SGMA's uneven results: farmers in enforcing plan areas "
+                    "bear fallowing costs while basin-wide recovery stays incomplete."
+                ),
+                "verdict_tone": "warn",
+            },
             {
                 "id": "agriculture",
                 "title": "Impacts to agriculture",
                 "focus": "Producer costs — fallow & cropland",
                 "body": (
-                    "SGMA limits pumping; producers respond by fallowing fields and removing irrigated acres. "
-                    "Higher fallow share and lost cropland mean less output and revenue — the main near-term "
-                    "cost borne by growers, not a sign of aquifer recovery."
+                    "SGMA caps pumping. Producers idle fields and shrink irrigated acreage — the main near-term "
+                    "farm cost. Those cuts concentrate where plans enforce limits, even when neighboring GSPs "
+                    "keep pumping."
                 ),
                 "bullets": [
-                    f"Average fallow share across GSPs with data: {fmt_pct(avg_fallow_16)} (2016) → {fmt_pct(avg_fallow_24)} (2024)."
-                    + (f" Mean change: +{avg_fallow_delta:.1f} pp." if avg_fallow_delta is not None else ""),
-                    f"{fallow_up} of {fallow_n} GSPs with fallow data increased share; {fallow_down} decreased.",
-                    f"Total tracked cropland acres: {fmt_int(sum_ag_16)} (2016) → {fmt_int(sum_ag_24)} (2024)"
-                    + (f" — net change {net_ag_change:+,} ac." if net_ag_change is not None else "."),
-                    f"{ag_down} of {ag_n} GSPs lost cropland acres; {ag_up} gained. "
-                    f"{fallow_rise_gwe_ease} GSPs raised fallow while the water table rose 2016→2024; "
-                    f"{fallow_rise_gwe_worse} raised fallow while the table fell further.",
+                    f"Average fallow share: {fmt_pct(avg_fallow_16)} (2016) → {fmt_pct(avg_fallow_24)} (2024)."
+                    + (f" Mean change +{avg_fallow_delta:.1f} pp." if avg_fallow_delta is not None else ""),
+                    f"{fallow_up} of {fallow_n} GSPs raised fallow share; {ag_down} of {ag_n} lost cropland acres.",
+                    f"{fallow_rise_gwe_ease} GSPs raised fallow while the table rose; {fallow_rise_gwe_worse} raised fallow while it fell further.",
                 ],
                 "stats": [
-                    {"val": fmt_pct(avg_fallow_24), "lbl": "Avg fallow share, 2024"},
-                    {"val": f"{ag_down}/{ag_n}", "lbl": "GSPs w/ data — lost cropland acres"},
-                    {"val": f"{ap_fallow_up}/{ap_fallow_n}", "lbl": "Approved GSPs w/ data — higher fallow", "compliant": True},
+                    {"val": fmt_pct(avg_fallow_24), "lbl": "Avg fallow share, 2024", "tone": "bad"},
+                    {"val": f"{ag_down}/{ag_n}", "lbl": "Lost cropland acres", "tone": "bad"},
+                    {"val": f"{ap_fallow_up}/{ap_fallow_n}", "lbl": "Approved GSPs — higher fallow", "tone": "bad"},
                 ],
                 "sgma_takeaway": sgma_ag,
+                "verdict_tone": "bad",
                 "explore_tab": "close",
             },
             {
                 "id": "residents",
                 "title": "Impacts to residents",
-                "focus": "Water table height & shallow wells",
+                "focus": "Shallow household wells & drinking-water access",
                 "body": (
-                    "Household wells are shallow — they go dry when the water table drops. A higher table "
-                    "2016→2024 should ease access; a table still below the pre-2016 baseline means deeper "
-                    "groundwater and continued risk. Dry-well report totals also rose as DWR expanded reporting."
+                    "Most domestic wells are shallow. When the water table stays below the pre-SGMA average, "
+                    "household pumps lose suction and wells go dry."
                 ),
                 "bullets": [
-                    f"Cumulative dry-well reports summed across GSPs: {fmt_int(sum_well_16)} (2016) → {fmt_int(sum_well_24)} (2024).",
-                    f"{well_up} of {well_n} GSPs with dry-well data report more in 2024 than 2016; {well_down} report fewer.",
-                    f"Water table (GSPs with data): {gwe_higher} of {gwe_n} higher in 2024 than 2016; {gwe_lower} lower.",
-                    f"In 2024, {below_baseline_24} of {gwe24_n} GSPs with baseline data remain below pre-2016 "
-                    f"(avg {fmt_ft(avg_below_24)} below); {above_baseline_24} of {gwe24_n} are above baseline.",
+                    f"Dry-well reports rose valley-wide: {fmt_int(sum_well_16)} (2016) → {fmt_int(sum_well_24)} (2024).",
+                    f"{below_baseline_24} of {gwe24_n} GSPs remain below the pre-SGMA average in 2024.",
+                    f"{ap_gwe_higher} of {ap_gwe_n} approved GSPs show a higher water table in 2024 than in 2016.",
                 ],
                 "stats": [
-                    {"val": f"{gwe_higher}/{gwe_n}", "lbl": "GSPs w/ data — table higher in 2024 vs 2016"},
-                    {"val": f"{above_baseline_24}/{gwe24_n}", "lbl": "GSPs w/ data — above pre-2016 baseline"},
-                    {"val": f"{ap_gwe_higher}/{ap_gwe_n}", "lbl": "Approved GSPs w/ data — table higher", "compliant": True},
+                    {
+                        "val": f"{below_baseline_24}/{gwe24_n}",
+                        "lbl": "GSPs with 2024 water table deeper than pre-2014 average — domestic well risk.",
+                        "tone": "bad",
+                    },
+                    {
+                        "val": f"{gwe_higher}/{gwe_n}",
+                        "lbl": "GSPs where water table rose since 2016 — recent recovery",
+                        "tone": "warn",
+                    },
+                    {
+                        "val": f"{ap_gwe_higher}/{ap_gwe_n}",
+                        "lbl": "Approved GSPs where water table is higher in 2024 vs 2016",
+                        "tone": "good",
+                    },
                 ],
                 "sgma_takeaway": sgma_res,
+                "verdict_tone": res_tone,
                 "explore_tab": "close",
             },
             {
@@ -1357,25 +1494,20 @@ def build_takeaways_page(
                 "title": "Impacts to the environment",
                 "focus": "Land subsidence (InSAR)",
                 "body": (
-                    "Land subsidence is aggregated per GSP from DWR InSAR point data (Dec–Dec epochs, feet). "
-                    "Positive values mean net sinking during that year; averages ignore GSP-years without coverage. "
-                    "Explorer maps show the same InSAR source valley-wide."
+                    "Land subsidence is measured from DWR InSAR (feet per epoch). Positive values mean net sinking. "
+                    "Compaction is largely permanent — slowing pumping helps, but legacy loss keeps infrastructure at risk."
                 ),
                 "bullets": [
-                    f"{sub_gsp_n} GSPs have InSAR point coverage — mean subsidence {fmt_sub_ft(avg_sub_yr)}/yr averaged across available epochs.",
-                    f"{latest_sub_year} epoch: avg {fmt_sub_ft(avg_sub_24)} subsidence among {sub24_n} GSPs with data; "
-                    f"{sinking_24} still sank >0.05 ft that year.",
-                    f"Approved GSPs with data: avg {fmt_sub_ft(ap_avg_sub_yr)}/yr across epochs; "
-                    f"{ap_sinking_24} of {ap_sub24_n} sank >0.05 ft in {latest_sub_year}.",
-                    f"{below_baseline_24} of {gwe24_n} GSPs with baseline data remain below pre-2016 in 2024 — "
-                    "continued depletion keeps compaction risk alive where monitoring exists.",
+                    f"{latest_sub_year} epoch: avg {fmt_sub_ft(avg_sub_24)} among {sub24_n} GSPs; {sinking_24} sank >0.05 ft.",
+                    f"Approved GSPs: {ap_sinking_24} of {ap_sub24_n} still sank >0.05 ft in {latest_sub_year}.",
                 ],
                 "stats": [
-                    {"val": fmt_sub_ft(avg_sub_24), "lbl": f"Avg subsidence, {latest_sub_year} epoch (GSPs w/ data)"},
-                    {"val": f"{sinking_24}/{sub24_n}", "lbl": "GSPs w/ data — sank >0.05 ft"},
-                    {"val": f"{ap_sinking_24}/{ap_sub24_n}", "lbl": "Approved GSPs w/ data — sank >0.05 ft", "compliant": True},
+                    {"val": fmt_sub_ft(avg_sub_24), "lbl": f"Avg subsidence, {latest_sub_year}", "tone": "bad"},
+                    {"val": f"{sinking_24}/{sub24_n}", "lbl": "GSPs sank >0.05 ft", "tone": "bad"},
+                    {"val": f"{ap_sinking_24}/{ap_sub24_n}", "lbl": "Approved GSPs still sinking", "tone": "bad"},
                 ],
                 "sgma_takeaway": sgma_env,
+                "verdict_tone": "bad",
                 "explore_tab": "explorer",
             },
         ],
@@ -1418,7 +1550,8 @@ def _sgma_takeaway_ag(
         delta_part = f" (avg +{avg_fallow_delta:.1f} pp valley-wide)" if avg_fallow_delta is not None else ""
         return (
             f"SGMA primarily hurts producers through idle land: {ap_fallow_up} of {ap_fallow_n} approved GSPs "
-            f"with fallow data raised fallow share{delta_part}{acres_part} — pumping limits are paid for in lost production."
+            f"with fallow data raised fallow share{delta_part}{acres_part} — pumping limits are paid for in lost "
+            f"production, often without proportional basin-wide recovery when neighboring GSPs still overdraft."
         )
     if net_ag_change is not None and net_ag_change < 0:
         return (
@@ -1447,12 +1580,12 @@ def _sgma_takeaway_residents(
     ):
         return (
             f"Water-table recovery is partial: {ap_gwe_higher} of {ap_gwe_n} approved GSPs with data rose "
-            f"2016→2024, but {ap_below_24} of {ap_gwe24_n} with baseline data still sit below pre-2016 in 2024."
+            f"2016→2024, but {ap_below_24} of {ap_gwe24_n} with baseline data still sit below the pre-SGMA average in 2024."
         )
     if ap_gwe24_n and ap_below_24 >= ap_gwe24_n / 2:
         return (
-            f"Water tables remain below pre-2016 in most approved basins: {ap_below_24} of {ap_gwe24_n} "
-            f"approved GSPs with baseline data are still deeper than the pre-SGMA average in 2024."
+            f"Water tables remain below the pre-SGMA average in most approved basins: {ap_below_24} of {ap_gwe24_n} "
+            f"approved GSPs with baseline data are still deeper than the pre-SGMA norm in 2024."
         )
     if ap_gwe_n and ap_gwe_higher >= ap_gwe_n / 2:
         return (
@@ -1629,7 +1762,7 @@ def build_econometrics_page(gsp_catalog: list[dict]) -> dict:
             "tag": "Environment",
             "caption": (
                 "Each dot is one GSP; the stepped line is the mean subsidence rate within depth bins. "
-                "Positive horizontal axis = water table deeper below the pre-2016 baseline in 2024. "
+                "Positive horizontal axis = water table deeper below the pre-SGMA average in 2024. "
                 f"Rank association {sc}. InSAR coverage varies by plan area — sparse GSPs are omitted."
             ),
         })
@@ -1741,24 +1874,16 @@ def build_econometrics_page(gsp_catalog: list[dict]) -> dict:
 def build_sources_page() -> dict:
     return {
         "intro": (
-            "Official datasets behind the Explorer maps, Close view metrics, and Analysis tab. "
-            "Photo and quote sources on the Home page are omitted here."
+            "Official datasets behind the Explorer maps, Close view metrics, and Analysis tab."
         ),
         "items": [
             {
                 "label": "DWR InSAR land subsidence (TRE Altamira)",
                 "url": "https://data.cnra.ca.gov/dataset/5e2d49e1-9ed0-425e-9f3e-2cda4a213c26",
                 "description": (
-                    "Satellite radar measures vertical land-surface movement. Powers subsidence rate layers "
-                    "on the Explorer map and per-GSP subsidence aggregates in Takeaways and Analysis."
-                ),
-            },
-            {
-                "label": "DWR InSAR map services (ArcGIS ImageServer)",
-                "url": "https://gis.water.ca.gov/arcgisimg/rest/services/SAR",
-                "description": (
-                    "Web map layers for annual subsidence rates and cumulative displacement used in the "
-                    "Explorer time slider (2016–2024 epochs)."
+                    "Satellite radar measures vertical land-surface movement. Powers annual rate and cumulative "
+                    "subsidence layers on the Explorer time slider (2016–2024) and per-GSP subsidence aggregates "
+                    "in Takeaways and Analysis. Map services: gis.water.ca.gov/arcgisimg/rest/services/SAR."
                 ),
             },
             {
@@ -1766,8 +1891,8 @@ def build_sources_page() -> dict:
                 "url": "https://data.cnra.ca.gov/dataset/gspmd",
                 "description": (
                     "Groundwater level sites and measurements submitted through the SGMA Portal's "
-                    "Monitoring Network Module. Used to compute each GSP's water-table level vs a pre-2016 "
-                    "baseline and 4-year trends in Close view and overdraft layers."
+                    "Monitoring Network Module. Used to compute each GSP's water-table level vs the pre-SGMA "
+                    "average and 4-year trends in Close view and overdraft layers."
                 ),
             },
             {
@@ -1822,17 +1947,185 @@ def build_sources_page() -> dict:
     }
 
 
+def build_explorer_variable_guides() -> list[dict]:
+    return [
+        {
+            "id": "subsidence_annual_rate",
+            "tab": "Subsidence rate",
+            "label": "Annual subsidence rate",
+            "control": "subsidence",
+            "value": "annual_rate",
+            "definition": (
+                "InSAR measures how fast land surface is sinking each year (ft/yr) during the mapped "
+                "Dec–Dec epoch. Green = slower · red = faster."
+            ),
+            "why": (
+                "Subsidence is a Sustainable Management Criteria under SGMA — plans must avoid sinking that "
+                "damages canals, levees, and roads. This layer shows where compaction is still active, not "
+                "just historical totals."
+            ),
+            "source": "DWR TRE Altamira InSAR",
+        },
+        {
+            "id": "subsidence_cumulative",
+            "tab": "Cumulative sink",
+            "label": "Cumulative subsidence since Jun 2015",
+            "control": "subsidence",
+            "value": "cumulative",
+            "definition": (
+                "Total vertical displacement since a shared June 2015 reference — comparable across years on "
+                "the time slider."
+            ),
+            "why": (
+                "Shows legacy sinking that SGMA is trying to halt. Valleys with large cumulative loss face "
+                "higher infrastructure repair costs even if annual rates slow."
+            ),
+            "source": "DWR TRE Altamira InSAR",
+        },
+        {
+            "id": "overdraft_cumulative",
+            "tab": "GWE baseline",
+            "label": "Water table vs pre-SGMA average",
+            "control": "overdraft",
+            "value": "cumulative",
+            "definition": (
+                "Average groundwater elevation in each GSP vs the pre-SGMA average — mean of all DWR monitoring "
+                "years before SGMA (2014). Positive = deeper than that norm · negative = shallower (recovered)."
+            ),
+            "why": (
+                "SGMA asks whether basins are reversing chronic lowering of groundwater. This is the same "
+                "metric as Close view — the core compliance signal for storage and overdraft."
+            ),
+            "source": "DWR MNM monitoring network",
+        },
+        {
+            "id": "overdraft_annual",
+            "tab": "GWE trend",
+            "label": "Water table trend (4-yr, ft/yr)",
+            "control": "overdraft",
+            "value": "annual",
+            "definition": (
+                "Four-year slope of groundwater elevation ending at the slider year. Positive = still falling · "
+                "negative = rising."
+            ),
+            "why": (
+                "A single wet year can lift the water table while long-run overdraft continues. The 4-yr trend "
+                "smooths drought–flood swings to show whether plans are changing trajectories."
+            ),
+            "source": "DWR MNM monitoring network",
+        },
+        {
+            "id": "gsp_status",
+            "tab": "GSP status",
+            "label": "GSP determination status",
+            "control": "equity",
+            "value": "gsp_status",
+            "definition": (
+                "DWR review outcome for each plan in the selected year — approved, under review, inadequate, "
+                "or pre-plan (before 2016)."
+            ),
+            "why": (
+                "Regulatory approval is not the same as hydrologic recovery. Mapping status shows where state "
+                "oversight is still pending vs where locals are formally cleared to implement their plans."
+            ),
+            "source": "DWR GSP determination records",
+        },
+        {
+            "id": "fallowed_land",
+            "tab": "Fallowed land",
+            "label": "Fallowed land (%)",
+            "control": "equity",
+            "value": "fallowed_land",
+            "definition": (
+                "Share of irrigated cropland left unplanted within each GSP — idle fields, pulled orchards, "
+                "or land taken out of production (Land IQ)."
+            ),
+            "why": (
+                "Fallowing is a main SGMA adjustment margin: cut pumping by farming less acreage. Rising fallow "
+                "with easing groundwater stress suggests plans are working; rising fallow with deepening "
+                "overdraft means painful cuts without recovery."
+            ),
+            "source": "Land IQ land use",
+        },
+        {
+            "id": "water_access",
+            "tab": "Water access",
+            "label": "Dry-well reports (cumulative)",
+            "control": "equity",
+            "value": "water_access",
+            "definition": (
+                "Domestic and small-supply well failure reports accumulated in each GSP from 2016 through the "
+                "selected year (bias-adjusted for expanded reporting after 2020)."
+            ),
+            "why": (
+                "Households and rural communities bear access costs when the water table drops. This lens tracks "
+                "who may be losing reliable supply even as agricultural plans adjust."
+            ),
+            "source": "DWR dry-well reporting",
+        },
+        {
+            "id": "farm_consolidation",
+            "tab": "Consolidation",
+            "label": "Large-farm share (NASS, %)",
+            "control": "equity",
+            "value": "farm_consolidation",
+            "definition": (
+                "Share of county farm operations ≥500 acres assigned to each GSP — a structural measure, not "
+                "tonnage or revenue."
+            ),
+            "why": (
+                "SGMA compliance costs (monitoring, pumping cuts, infrastructure) may push out smaller operators. "
+                "Rising large-farm share under stress signals equity pressure on who can stay in business."
+            ),
+            "source": "USDA NASS Census of Agriculture",
+        },
+        {
+            "id": "ag_production",
+            "tab": "Cropland acres",
+            "label": "Total cropland acres (Land IQ)",
+            "control": "equity",
+            "value": "ag_production",
+            "definition": (
+                "Total cropland acres in each GSP — best available proxy for irrigated footprint, not yield "
+                "or crop mix."
+            ),
+            "why": (
+                "High acreage keeps irrigation demand on the table even when plans are approved. Pair with "
+                "groundwater metrics: stable acres + falling water table = production holding while aquifers "
+                "still deplete."
+            ),
+            "source": "Land IQ land use",
+        },
+        {
+            "id": "dry_wells",
+            "tab": "Dry-well points",
+            "label": "Dry-well locations (points)",
+            "control": "toggle",
+            "value": "well-dots",
+            "definition": (
+                "Individual reported dry-well locations for the selected year — drought years highlighted in "
+                "red."
+            ),
+            "why": (
+                "Choropleth totals hide hotspots. Points show where access failures cluster in drought years "
+                "vs wet years."
+            ),
+            "source": "DWR dry-well reporting",
+        },
+    ]
+
+
 def build_relationship_variables() -> list[dict]:
     return [
         {
             "id": "gwe_cumulative_drop",
-            "label": "Water table vs pre-2016 baseline",
-            "x_label": "2016 — ft above/below pre-2016 baseline",
-            "y_label": "2024 — ft above/below pre-2016 baseline",
+            "label": "Water table vs pre-SGMA average",
+            "x_label": "2016 — ft above/below pre-SGMA average",
+            "y_label": "2024 — ft above/below pre-SGMA average",
             "delta_label": "Change 2016→2024 (ft; negative = table rose)",
             "good_short": "water table higher in 2024 — below diagonal",
             "bad_short": "water table lower in 2024 — above diagonal",
-            "note": "Each dot is one GSP. Positive = below pre-2016 baseline (deeper); negative = above (higher). Dashed line = no change. Points below the line = table rose from 2016 to 2024.",
+            "note": "Each dot is one GSP. Positive = below pre-SGMA average (deeper); negative = above (higher). Dashed line = no change. Points below the line = table rose from 2016 to 2024.",
             "caveat": None,
             "gwe_context": False,
             "chart_mode": "paired",
@@ -1960,7 +2253,7 @@ def build_data() -> dict:
     status_timeline = build_status_timeline(status_df)
     fallow_series, ag_series = load_fallow_ag_series()
     gwe_series = load_gsp_gwe_yearly(gsp_gdf)
-    gwe_pre2016 = build_gwe_pre2016_baseline(gwe_series)
+    gwe_pre_sgma = build_gwe_pre_sgma_baseline(gwe_series)
     gwe_trend_series = build_gwe_trend_series(gwe_series, window=3, value_key="gwe_trend_ft_yr")
     gwe_trend_4yr_series = build_gwe_trend_series(gwe_series, window=4, value_key="gwe_trend_4yr_ft_yr")
     dry_wells, well_series = load_dry_wells_gsp(gsp_gdf, counties_gdf)
@@ -1972,7 +2265,7 @@ def build_data() -> dict:
     gsps = simplify_geojson_gdf(gsp_gdf)
     gsps = enrich_gsps(
         gsps, status_timeline, fallow_series, ag_series, gwe_series, gwe_trend_series,
-        gwe_trend_4yr_series, well_series, gwe_pre2016, gsp_county_fips, farm_by_county,
+        gwe_trend_4yr_series, well_series, gwe_pre_sgma, gsp_county_fips, farm_by_county,
     )
     scale_max = gsps.pop("_scale_max", {})
     split_gwe_scale = compute_split_gwe_scale(gsps)
@@ -2011,7 +2304,8 @@ def build_data() -> dict:
         "econometrics_page": econometrics_page,
         "sources_page": sources_page,
         "relationship_variables": build_relationship_variables(),
-        "sgma_window": {"pre_year": 2016, "post_year": 2024, "baseline_note": "Pre-2016 = before SGMA enforcement; 2024 = latest data"},
+        "explorer_variable_guides": build_explorer_variable_guides(),
+        "sgma_window": {"pre_year": 2016, "post_year": 2024, "baseline_note": "Pre-SGMA average = all DWR well years before 2014; 2016→2024 = site's main change window"},
         "split_comparison": {
             "pre_year": 2014,
             "post_year": 2024,
@@ -2043,8 +2337,8 @@ def build_data() -> dict:
         "overdraft_layers": [
             {
                 "id": "cumulative",
-                "label": "Water table vs pre-2016 baseline",
-                "description": "Same metric as Close view: ft above/below pre-2016 average. Positive = below baseline (deeper); negative = above (higher). Updates with the year slider.",
+                "label": "Water table vs pre-SGMA average",
+                "description": "Same metric as Close view: ft above/below pre-SGMA average. Positive = below baseline (deeper); negative = above (higher). Updates with the year slider.",
             },
             {
                 "id": "annual",
@@ -2063,7 +2357,7 @@ def build_data() -> dict:
         ],
         "overdraft_legend": {
             "cumulative": {
-                "title": "Water table vs pre-2016 baseline (ft)",
+                "title": "Water table vs pre-SGMA average (ft)",
                 "min": "Above baseline (higher)",
                 "max": "Below baseline (deeper)",
             },
@@ -2105,7 +2399,7 @@ def render_html() -> str:
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Sinking Valley Explorer — SGMA Effectiveness</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
   <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
   <link rel="stylesheet" href="sinking_valley_explorer.css"/>
 </head>
@@ -2155,6 +2449,9 @@ def render_html() -> str:
       <section class="intro-section">
         <h2>Voices from the valley</h2>
         <div class="intro-quotes-slideshow" id="intro-quotes-slideshow" tabindex="0" role="region" aria-label="Valley quotes slideshow"></div>
+      </section>
+      <section class="intro-section">
+        <div class="intro-orient-panel" id="intro-orient-panel"></div>
       </section>
       <section class="intro-section">
         <h2>Key terms</h2>
@@ -2221,7 +2518,7 @@ def render_html() -> str:
     <header>
       <p class="eyebrow">SJV Explorer · DWR InSAR + MNM</p>
       <h1>Sinking Valley</h1>
-      <p class="lede">Track subsidence and the same GSP groundwater metrics as Close view — water table vs pre-2016 baseline and 4-yr trend — plus fallowing and water access.</p>
+      <p class="lede">Track subsidence and the same GSP groundwater metrics as Close view — water table vs pre-SGMA average and 4-yr trend — plus fallowing and water access.</p>
     </header>
     <div class="split-toggle-bar" id="split-controls">
       <label><input type="checkbox" id="toggle-split"/> Before / after water table (2014 vs 2024)</label>
@@ -2245,7 +2542,7 @@ def render_html() -> str:
       <div class="controls">
         <label for="overdraft-select">Overdraft layer</label>
         <select id="overdraft-select">
-          <option value="cumulative">Water table vs pre-2016 baseline</option>
+          <option value="cumulative">Water table vs pre-SGMA average</option>
           <option value="annual">Water table trend (4-yr, ft/yr)</option>
           <option value="none" selected>None</option>
         </select>
@@ -2285,6 +2582,29 @@ def render_html() -> str:
       <p class="credit">Subsidence: DWR TRE Altamira SAR · GWE: DWR MNM · Dry wells: DWR reporting (bias-adjusted).</p>
     </div>
   </div>
+  <aside class="var-why-panel" id="var-why-panel" aria-label="Variable guide">
+    <header class="var-why-head">
+      <div class="var-why-head-row">
+        <h2 class="var-why-title">Variables</h2>
+        <button type="button" class="var-why-close" id="var-why-close" aria-label="Hide variable guide">×</button>
+      </div>
+      <p class="var-why-lede">Click a layer or tab to see what it measures and why it matters for SGMA.</p>
+    </header>
+    <nav class="var-why-tabs" id="var-why-tabs" role="tablist" aria-label="Explorer variables"></nav>
+    <div class="var-why-body" id="var-why-body">
+      <h3 class="var-why-name" id="var-why-name"></h3>
+      <div class="var-why-block">
+        <h4>What it is</h4>
+        <p id="var-why-def"></p>
+      </div>
+      <div class="var-why-block">
+        <h4>Why map it</h4>
+        <p id="var-why-why"></p>
+      </div>
+      <p class="var-why-source" id="var-why-source"></p>
+    </div>
+  </aside>
+  <button type="button" class="var-why-open" id="var-why-open" aria-label="Show variable guide" hidden>Variables</button>
   <aside class="legend-panel" id="legend-panel">
     <div id="subsidence-legend">
       <h3 id="subsidence-legend-title">Subsidence rate</h3>
@@ -2292,7 +2612,7 @@ def render_html() -> str:
       <div class="bar-labels"><span id="legend-min">Slower</span><span id="legend-max">Faster</span></div>
     </div>
     <div id="overdraft-legend">
-      <h3 id="overdraft-legend-title">Water table vs pre-2016 baseline (ft)</h3>
+      <h3 id="overdraft-legend-title">Water table vs pre-SGMA average (ft)</h3>
       <div class="subsidence-bar overdraft-bar" id="overdraft-bar"></div>
       <div class="bar-labels"><span id="overdraft-legend-min">Above baseline</span><span id="overdraft-legend-max">Below baseline</span></div>
     </div>
@@ -2325,14 +2645,14 @@ def render_html() -> str:
       </div>
       <h3 class="close-metrics-heading">2016 → 2024 metrics</h3>
       <div id="close-metrics" class="metric-grid"></div>
-      <p class="note panel-note">Subsidence is valley-wide InSAR on the Explorer tab (not aggregated per GSP here). Water table vs baseline: positive = below pre-2016 average (deeper); negative = above (higher). Green deltas mean improvement 2016→2024, not necessarily “good” today. Dry-well counts reflect expanded DWR reporting since ~2020.</p>
+      <p class="note panel-note">Subsidence is valley-wide InSAR on the Explorer tab (not aggregated per GSP here). Water table vs baseline: positive = below pre-SGMA average (deeper); negative = above (higher). Green deltas mean improvement 2016→2024, not necessarily “good” today. Dry-well counts reflect expanded DWR reporting since ~2020.</p>
     </div>
   </div>
   <div id="tab-relationships" class="tab-panel">
     <div class="panel-page panel-wide">
       <header class="panel-header">
         <h1>Variable relationships</h1>
-        <p class="lede">Each dot is one GSP. Left chart: 2016 (horizontal) vs 2024 (vertical). Right chart: change during SGMA years. For water table, negative values = above the pre-2016 baseline (higher). Descriptive only — not proof of causation.</p>
+        <p class="lede">Each dot is one GSP. Left chart: 2016 (horizontal) vs 2024 (vertical). Right chart: change during SGMA years. For water table, negative values = above the pre-SGMA average (higher). Descriptive only — not proof of causation.</p>
       </header>
       <div class="panel-controls rel-controls">
         <label for="rel-variable-select">Variable</label>
@@ -2366,10 +2686,11 @@ def render_html() -> str:
   </div>
   <div id="tab-takeaways" class="tab-panel">
     <div class="intro-page takeaways-page">
-      <header class="panel-header">
+      <header class="panel-header takeaways-header">
         <h1>Takeaways</h1>
         <p class="lede" id="takeaways-lede"></p>
-        <p class="takeaways-sgma-answer" id="takeaways-sgma-answer" hidden></p>
+        <div class="takeaways-headline" id="takeaways-headline" hidden></div>
+        <div class="takeaways-sgma-answer" id="takeaways-sgma-answer" hidden></div>
       </header>
       <div id="takeaways-sections" class="takeaways-sections"></div>
       <footer class="intro-footer">

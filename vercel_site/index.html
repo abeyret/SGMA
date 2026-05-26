@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Sinking Valley Explorer — SGMA Effectiveness</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
   <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
   <link rel="stylesheet" href="sinking_valley_explorer.css"/>
 </head>
@@ -55,6 +55,9 @@
       <section class="intro-section">
         <h2>Voices from the valley</h2>
         <div class="intro-quotes-slideshow" id="intro-quotes-slideshow" tabindex="0" role="region" aria-label="Valley quotes slideshow"></div>
+      </section>
+      <section class="intro-section">
+        <div class="intro-orient-panel" id="intro-orient-panel"></div>
       </section>
       <section class="intro-section">
         <h2>Key terms</h2>
@@ -121,7 +124,7 @@
     <header>
       <p class="eyebrow">SJV Explorer · DWR InSAR + MNM</p>
       <h1>Sinking Valley</h1>
-      <p class="lede">Track subsidence and the same GSP groundwater metrics as Close view — water table vs pre-2016 baseline and 4-yr trend — plus fallowing and water access.</p>
+      <p class="lede">Track subsidence and the same GSP groundwater metrics as Close view — water table vs pre-SGMA average and 4-yr trend — plus fallowing and water access.</p>
     </header>
     <div class="split-toggle-bar" id="split-controls">
       <label><input type="checkbox" id="toggle-split"/> Before / after water table (2014 vs 2024)</label>
@@ -145,7 +148,7 @@
       <div class="controls">
         <label for="overdraft-select">Overdraft layer</label>
         <select id="overdraft-select">
-          <option value="cumulative">Water table vs pre-2016 baseline</option>
+          <option value="cumulative">Water table vs pre-SGMA average</option>
           <option value="annual">Water table trend (4-yr, ft/yr)</option>
           <option value="none" selected>None</option>
         </select>
@@ -185,6 +188,29 @@
       <p class="credit">Subsidence: DWR TRE Altamira SAR · GWE: DWR MNM · Dry wells: DWR reporting (bias-adjusted).</p>
     </div>
   </div>
+  <aside class="var-why-panel" id="var-why-panel" aria-label="Variable guide">
+    <header class="var-why-head">
+      <div class="var-why-head-row">
+        <h2 class="var-why-title">Variables</h2>
+        <button type="button" class="var-why-close" id="var-why-close" aria-label="Hide variable guide">×</button>
+      </div>
+      <p class="var-why-lede">Click a layer or tab to see what it measures and why it matters for SGMA.</p>
+    </header>
+    <nav class="var-why-tabs" id="var-why-tabs" role="tablist" aria-label="Explorer variables"></nav>
+    <div class="var-why-body" id="var-why-body">
+      <h3 class="var-why-name" id="var-why-name"></h3>
+      <div class="var-why-block">
+        <h4>What it is</h4>
+        <p id="var-why-def"></p>
+      </div>
+      <div class="var-why-block">
+        <h4>Why map it</h4>
+        <p id="var-why-why"></p>
+      </div>
+      <p class="var-why-source" id="var-why-source"></p>
+    </div>
+  </aside>
+  <button type="button" class="var-why-open" id="var-why-open" aria-label="Show variable guide" hidden>Variables</button>
   <aside class="legend-panel" id="legend-panel">
     <div id="subsidence-legend">
       <h3 id="subsidence-legend-title">Subsidence rate</h3>
@@ -192,7 +218,7 @@
       <div class="bar-labels"><span id="legend-min">Slower</span><span id="legend-max">Faster</span></div>
     </div>
     <div id="overdraft-legend">
-      <h3 id="overdraft-legend-title">Water table vs pre-2016 baseline (ft)</h3>
+      <h3 id="overdraft-legend-title">Water table vs pre-SGMA average (ft)</h3>
       <div class="subsidence-bar overdraft-bar" id="overdraft-bar"></div>
       <div class="bar-labels"><span id="overdraft-legend-min">Above baseline</span><span id="overdraft-legend-max">Below baseline</span></div>
     </div>
@@ -225,14 +251,14 @@
       </div>
       <h3 class="close-metrics-heading">2016 → 2024 metrics</h3>
       <div id="close-metrics" class="metric-grid"></div>
-      <p class="note panel-note">Subsidence is valley-wide InSAR on the Explorer tab (not aggregated per GSP here). Water table vs baseline: positive = below pre-2016 average (deeper); negative = above (higher). Green deltas mean improvement 2016→2024, not necessarily “good” today. Dry-well counts reflect expanded DWR reporting since ~2020.</p>
+      <p class="note panel-note">Subsidence is valley-wide InSAR on the Explorer tab (not aggregated per GSP here). Water table vs baseline: positive = below pre-SGMA average (deeper); negative = above (higher). Green deltas mean improvement 2016→2024, not necessarily “good” today. Dry-well counts reflect expanded DWR reporting since ~2020.</p>
     </div>
   </div>
   <div id="tab-relationships" class="tab-panel">
     <div class="panel-page panel-wide">
       <header class="panel-header">
         <h1>Variable relationships</h1>
-        <p class="lede">Each dot is one GSP. Left chart: 2016 (horizontal) vs 2024 (vertical). Right chart: change during SGMA years. For water table, negative values = above the pre-2016 baseline (higher). Descriptive only — not proof of causation.</p>
+        <p class="lede">Each dot is one GSP. Left chart: 2016 (horizontal) vs 2024 (vertical). Right chart: change during SGMA years. For water table, negative values = above the pre-SGMA average (higher). Descriptive only — not proof of causation.</p>
       </header>
       <div class="panel-controls rel-controls">
         <label for="rel-variable-select">Variable</label>
@@ -266,10 +292,11 @@
   </div>
   <div id="tab-takeaways" class="tab-panel">
     <div class="intro-page takeaways-page">
-      <header class="panel-header">
+      <header class="panel-header takeaways-header">
         <h1>Takeaways</h1>
         <p class="lede" id="takeaways-lede"></p>
-        <p class="takeaways-sgma-answer" id="takeaways-sgma-answer" hidden></p>
+        <div class="takeaways-headline" id="takeaways-headline" hidden></div>
+        <div class="takeaways-sgma-answer" id="takeaways-sgma-answer" hidden></div>
       </header>
       <div id="takeaways-sections" class="takeaways-sections"></div>
       <footer class="intro-footer">
